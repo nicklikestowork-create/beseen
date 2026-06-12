@@ -222,6 +222,8 @@
       <span class="saved" id="savedMsg">Saved ✓</span>
     </div>
     <div class="card glow" id="numResults"></div>
+    <div style="text-align:center;margin:8px 0 2px"><button class="btn btn-primary" id="sendNick">📨 Send Everything to Nick</button></div>
+    <p class="note" style="text-align:center;margin-top:8px">Sends Nick your full profile so he can help you hit your goal.</p>
   </section>
 
   <section class="panel" data-panel="2">
@@ -489,7 +491,7 @@ function renderDashboard(){
   if(iu){h+=`<p class="note" style="margin:6px 0 10px">To earn <b>${money(ideal)}/month</b> at ${money(p)} per sale:</p>
     <div class="big"><div><span class="b-lab">Sell this many / month</span><span class="b-val pos">${iu}</span></div><div><span class="b-lab">About / week</span><span class="b-val">${Math.ceil(iu/4.33)}</span></div></div>
     <button class="btn btn-primary btn-sm" data-go="3" style="margin-top:12px">Go get them →</button>`;}
-  else{h+=`<p class="note" style="margin:6px 0 10px">Add your price + income goal and we'll show you exactly how many sales you need.</p><button class="btn btn-primary btn-sm" data-go="1">Set my numbers →</button>`;}
+  else{h+=`<p class="note" style="margin:6px 0 10px">Add your price + income goal and we'll show you exactly how many sales you need.</p><button class="btn btn-primary btn-sm" data-go="1">Set up my profile →</button>`;}
   h+=`</div>`;
   h+=`<div class="stat-row">
     <div class="stat"><div class="v">${p?money(p):'—'}</div><div class="l">Per sale</div></div>
@@ -557,6 +559,28 @@ if(cloudOn){
     else showAuth();
   });
 }
+
+/* ---- Send Everything to Nick (email) ---- */
+function sendToNick(){
+  const f=state.fields, L=(lab,k)=>`${lab}: ${(f[k]&&f[k].trim())||'—'}`;
+  const p=num(F('price','')), ideal=num(F('idealIncome','')), iu=(p&&ideal)?Math.ceil(ideal/p):0;
+  const parts=[`Be Seen — profile from ${F('name','(no name given)')}`];
+  if(cloudOn&&user&&user.email)parts.push(`Account email: ${user.email}`);
+  parts.push('','THE NUMBERS',
+    L('Name / brand','name'),L('Marketable skill','skillset'),L('What they sell','product'),
+    L('Who they help','customer'),L('Price per sale','price'),L('Other products','otherProducts'),
+    L('Ideal monthly income','idealIncome'),L('Month 1 goal','m1'),L('Month 2 goal','m2'),L('Month 3 goal','m3'));
+  if(iu)parts.push(`→ Sales needed per month: ${iu}`);
+  parts.push('','CONTACT & LEADS',L('Phone','phone'),L('How they get leads','leads'),
+    '','MARKETING',L('Offer','offer'),
+    `FB groups: ${[f.group1,f.group2,f.group3].filter(Boolean).join(', ')||'—'}`,
+    `Review contacts: ${[f.rev1,f.rev2,f.rev3].filter(Boolean).join(', ')||'—'}`,
+    '','(sent from Be Seen — aisamurais.com/beseen)');
+  const subj=`Be Seen profile — ${F('name','new lead')}`;
+  location.href=`mailto:nicklikestowork@gmail.com?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(parts.join('\n'))}`;
+  toast('Opening your email to send Nick ✉️');
+}
+$('#sendNick').onclick=sendToNick;
 
 renderNumbers();
 renderMarketing();
