@@ -222,6 +222,8 @@
       <span class="saved" id="savedMsg">Saved ✓</span>
     </div>
     <div class="card glow" id="numResults"></div>
+    <div class="lead" style="padding:18px 0 0"><div class="kick">Your checklist</div><h1 style="font-size:24px">Get ready to sell</h1></div>
+    <div class="card" id="setupList"></div>
     <div style="text-align:center;margin:8px 0 2px"><button class="btn btn-primary" id="sendNick">📨 Send Everything to Nick</button></div>
     <p class="note" style="text-align:center;margin-top:8px">Sends Nick your full profile so he can help you hit your goal.</p>
   </section>
@@ -237,7 +239,6 @@
       <div class="field" style="margin:0"><label><span class="dot"></span>Your phone number (optional)</label><input id="f_phone" placeholder="e.g. (480) 555-1234"></div>
       <p class="note">No real lead flow yet? Your 3 Facebook groups + the posts in Step 3 are the fastest free start.</p>
     </div>
-    <div class="card" id="setupList"></div>
   </section>
 
   <section class="panel" data-panel="3">
@@ -500,7 +501,7 @@ function renderDashboard(){
     <div class="stat"><div class="v">${iu||'—'}</div><div class="l">Sales / mo</div></div>
     <div class="stat"><div class="v">${pct}%</div><div class="l">Set up</div></div></div>`;
   h+=`<div class="card"><div class="t-title" style="margin-bottom:4px">Get ready to sell</div>`;
-  TASKS.forEach(tk=>{const d=!!state.done[tk.id];h+=`<div class="dash-step ${d?'done':''}" data-go="2"><div class="dot2">${d?'✓':''}</div><div class="nm">${tk.icon} ${tk.title}</div><div class="go">›</div></div>`;});
+  TASKS.forEach(tk=>{const d=!!state.done[tk.id];h+=`<div class="dash-step ${d?'done':''}" data-go="1"><div class="dot2">${d?'✓':''}</div><div class="nm">${tk.icon} ${tk.title}</div><div class="go">›</div></div>`;});
   h+=`</div>`;
   h+=`<div class="nav-row"><div class="nav-card" data-go="1"><div class="ic">🎯</div><div class="t">Profile</div></div><div class="nav-card" data-go="2"><div class="ic">🧰</div><div class="t">Set Up</div></div><div class="nav-card" data-go="3"><div class="ic">📣</div><div class="t">Marketing</div></div></div>`;
   if(typeof cloudOn!=='undefined'&&cloudOn&&user)h+=`<p style="text-align:center;margin-top:18px"><a class="glink" id="logoutLink" style="cursor:pointer">Log out (${user.email||''})</a></p>`;
