@@ -296,13 +296,13 @@
 <div class="auth" id="auth">
   <div class="auth-card">
     <span class="logo"><span class="mark">📣</span><span>Fuel Your Freedom <span class="g">Marketer</span></span></span>
-    <h2 id="authTitle">Welcome back</h2>
-    <p class="sub" id="authSub">Log in to pick up where you left off.</p>
+    <h2 id="authTitle">Welcome to <span class="g">YOUR FUTURE</span></h2>
+    <p class="sub" id="authSub">Sign up for free to get started!</p>
     <div class="field"><label><span class="dot"></span>Email</label><input id="authEmail" type="email" placeholder="you@email.com" autocomplete="email"></div>
     <div class="field"><label><span class="dot"></span>Password</label><input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
-    <button class="btn btn-primary" id="authBtn">Log in</button>
+    <button class="btn btn-primary" id="authBtn">Create my free account</button>
     <div class="err" id="authErr"></div>
-    <div class="switch" id="authSwitch">New here? <a id="authToggle">Create an account</a></div>
+    <div class="switch" id="authSwitch">Already have an account? <a id="authToggle">Log in</a></div>
   </div>
 </div>
 
@@ -520,9 +520,9 @@ function showAuth(){authEl.classList.add('show');}
 function hideAuth(){authEl.classList.remove('show');}
 let authMode='login';
 function setMode(m){authMode=m;
-  $('#authTitle').textContent=m==='login'?'Welcome back':'Create your account';
-  $('#authSub').textContent=m==='login'?'Log in to pick up where you left off.':'Sign up to save your work and sync it across all your devices.';
-  $('#authBtn').textContent=m==='login'?'Log in':'Create account';
+  $('#authTitle').innerHTML=m==='login'?'Welcome <span class="g">back</span>':'Welcome to <span class="g">YOUR FUTURE</span>';
+  $('#authSub').textContent=m==='login'?'Log in to pick up where you left off.':'Sign up for free to get started!';
+  $('#authBtn').textContent=m==='login'?'Log in':'Create my free account';
   $('#authSwitch').innerHTML=m==='login'?'New here? <a id="authToggle">Create an account</a>':'Already have an account? <a id="authToggle">Log in</a>';
   $('#authToggle').onclick=()=>setMode(m==='login'?'signup':'login');
   $('#authErr').textContent='';
@@ -554,7 +554,7 @@ if(cloudOn){
   cloudSave=function(){if(!user)return;clearTimeout(_syncT);_syncT=setTimeout(()=>{sb.from('app_state').upsert({user_id:user.id,data:state,updated_at:new Date().toISOString()});},800);};
   $('#authBtn').onclick=doAuth;
   $('#authPass').addEventListener('keydown',e=>{if(e.key==='Enter')doAuth();});
-  setMode('login');
+  setMode('signup');
   sb.auth.getSession().then(({data})=>{
     const session=data&&data.session;
     if(session){user=session.user;hideAuth();renderDashboard();if(!sessionStorage.getItem('pulled'))afterLogin();}
