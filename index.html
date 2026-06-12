@@ -418,57 +418,46 @@ $('#cp_bio').onclick=()=>copy(bio());
 
 /* ---- Step 2 tasks ---- */
 const TASKS=[
-  {id:'website',icon:'🌍',title:'Create a website with AI',why:'Have Claude build you a beautiful website — based on a site you already love.',
-   act:b=>{
-     b.innerHTML=`<div class="field"><label><span class="dot"></span>Paste a website you love (for inspiration)</label><input id="f_inspo" placeholder="e.g. a competitor or a site whose look you want"></div>
-       <button class="btn btn-primary btn-sm" id="genSite">✨ Build my website prompt</button>
-       <div id="o_site"></div>
-       <p class="note" style="margin-top:10px">Rather drag-and-drop it yourself? <a class="glink" target="_blank" rel="noopener" href="https://carrd.co/">Carrd ↗</a></p>`;
-     const inspo=b.querySelector('#f_inspo'); inspo.value=state.fields.inspo||'';
-     inspo.addEventListener('input',()=>{state.fields.inspo=inspo.value;save();});
-     b.querySelector('#genSite').onclick=()=>{
-       const n=biz(),s=svc(),c=F('customer','my ideal customers'),offer=F('offer',''),ph=F('phone',''),ins=F('inspo','');
-       const p=`You are an expert web designer and copywriter. Build me a complete, beautiful, modern ONE-PAGE website as a single self-contained HTML file (inline CSS, mobile-first; only Google Fonts allowed as an external resource).
-
-ABOUT ME
-• Name / brand: ${n}
-• What I do: ${F('skillset','my skill')}
-• What I sell: ${s}
-• Who it's for: ${c}
-${offer?`• Offer: ${offer}\n`:''}${ph?`• Phone: ${ph}\n`:''}${ins?`\nINSPIRATION\nBase the design, layout and vibe on a site I love: ${ins}\nCapture its feel — but make it original and tailored to me.\n`:''}
-WHAT TO INCLUDE
-• Sticky header: my name + a contact button${ph?` (use tel:${ph})`:''}.
-• Hero: a bold headline, one-line subhead, and a primary call-to-action.
-• What I offer / services.
-• Why work with me (3–4 benefits).
-• A testimonials section (realistic placeholders).
-• A final call-to-action band.
-• Footer with contact info${ph?` and the phone number`:''}.
-
-STYLE
-• Premium and clean: tasteful colors, great typography, generous spacing, subtle hover effects.
-• Confident, benefit-driven copy that speaks directly to ${c}.
-• Fully responsive on phones.
-
-OUTPUT
-Give me ONLY the complete HTML in one code block, ready to copy. No explanation.`;
-       const box=b.querySelector('#o_site');
-       box.innerHTML=`<div class="out" style="white-space:pre-wrap;font-size:13px;max-height:240px;overflow:auto">${p.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
-         <button class="btn btn-primary btn-sm" id="openClaude">📋 Copy + open Claude</button>
-         <button class="btn btn-glass btn-sm" id="copySite">Copy prompt</button>
-         <p class="note"><b>How to use it:</b><br>1. Tap “Copy + open Claude” — we copy this prompt and open Claude for you.<br>2. Paste it into Claude (Cmd/Ctrl + V) and let it build your site.<br>3. Copy the HTML code Claude gives you.<br>4. Paste that code into your website builder inside your CRM (from the CRM step) — and you're live.</p>`;
-       box.querySelector('#copySite').onclick=()=>copy(p);
-       box.querySelector('#openClaude').onclick=()=>{const w=window.open('https://claude.ai/new','_blank');if(!w)location.href='https://claude.ai/new';copy(p);toast('Prompt copied — paste it into Claude');};
-     };
-   }},
-  {id:'crm',icon:'📇',title:'Sign up for a CRM',why:'One place for every lead and customer so none slip through the cracks — and where your website lives.',
-   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://leadminingpros.com/crm6">Get your CRM ↗</a><p class="note">Tracks every lead from first message to paying customer. Your AI website pastes right in here.</p>`;}},
-  {id:'bookcall',icon:'📅',title:'Book a call with Nick',why:'Get personal help dialing in your offer, your numbers, and your marketing plan.',
-   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://calendly.com/lead-mining/executive">Book your call ↗</a><p class="note">Pick a time that works and come ready with your skill, your offer, and your income goal.</p>`;}},
-  {id:'fbpage',icon:'📘',title:'Set up your Facebook business page',why:'Your free storefront — where new customers check you out and message you.',
+  {id:'fbpage',icon:'📘',title:'Create FB business page',why:'Your free storefront — where new customers check you out and message you.',
    act:b=>{const bio2=`${F('name','Your Name')}\n\n${cap(F('skillset','what I do'))} for ${F('customer','people who need it')}. ${F('product','')?cap(F('product',''))+'. ':''}Message me to get started 👇`;
      b.innerHTML=`<div class="out" style="white-space:pre-wrap;font-size:14px">${bio2}</div><button class="btn btn-glass btn-sm" id="cp_pg">Copy bio</button><a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://www.facebook.com/pages/creation/">Create Page ↗</a><p class="note">Already have one? Just check this off. Otherwise create it and paste the bio above.</p>`;
      b.querySelector('#cp_pg').onclick=()=>copy(bio2);}},
+  {id:'groups',icon:'👥',title:'Join 3 FB groups to market in',why:'Find 3 active groups full of your customers — that\'s where you\'ll post.',
+   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://www.facebook.com/search/groups/?q=${encodeURIComponent(F('customer','small business'))}">Search Facebook groups ↗</a><a class="btn btn-glass btn-sm" id="toMkt" style="cursor:pointer">Add my 3 groups →</a><p class="note">Join 3 groups where your customers hang out, then add them in the Marketing tab.</p>`;b.querySelector('#toMkt').onclick=()=>goTab(3);}},
+  {id:'aiposts',icon:'✍️',title:'Get AI to write 20 posts per service',why:'Claude writes 20 compelling posts (with CTAs) for each thing you sell — a month+ of content.',
+   act:b=>{b.innerHTML=`<button class="btn btn-primary btn-sm" id="genP20">✨ Write my posts with AI</button><div id="o_p20"></div>`;
+     b.querySelector('#genP20').onclick=()=>{
+       const n=F('name','me'),sk=F('skillset','my skill'),prod=F('product','my main service'),other=F('otherProducts',''),c=F('customer','my ideal customers'),offer=F('offer','');
+       const p=`You are an expert social media copywriter. Write me 20 short, compelling social media posts for EACH of my services below. Every post needs a scroll-stopping hook and a clear call to action.
+
+ABOUT ME
+• Name: ${n}
+• My skill: ${sk}
+• Who I help: ${c}
+${offer?`• Current offer: ${offer}\n`:''}
+MY SERVICES (write 20 posts for EACH one)
+1. ${prod}
+${other?`2. ${other}\n`:''}
+GUIDELINES
+• Vary the angles: problem/solution, story, quick tip, myth-bust, result, question, offer, social proof, behind-the-scenes, direct CTA.
+• Speak directly to ${c}. Confident and benefit-driven, no fluff.
+• End every post with a clear CTA (DM me, comment below, book a call, etc.).
+• Number them and group them under each service heading.
+
+OUTPUT
+Give me all the posts, ready to copy. No preamble.`;
+       const box=b.querySelector('#o_p20');
+       box.innerHTML=`<div class="out" style="white-space:pre-wrap;font-size:13px;max-height:240px;overflow:auto">${p.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
+         <button class="btn btn-primary btn-sm" id="openP20">📋 Copy + open Claude</button>
+         <button class="btn btn-glass btn-sm" id="cpP20">Copy prompt</button>
+         <p class="note"><b>How to use it:</b><br>1. Tap “Copy + open Claude.”<br>2. Paste it into Claude (Cmd/Ctrl + V) and let it write your posts.<br>3. Copy them and post a few a week in your 3 groups.</p>`;
+       box.querySelector('#cpP20').onclick=()=>copy(p);
+       box.querySelector('#openP20').onclick=()=>{const w=window.open('https://claude.ai/new','_blank');if(!w)location.href='https://claude.ai/new';copy(p);toast('Prompt copied — paste it into Claude');};
+     };}},
+  {id:'crm',icon:'📇',title:'Sign up for CRM',why:'One place for every lead and customer so none slip through the cracks.',
+   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://leadminingpros.com/crm6">Get your CRM ↗</a><p class="note">Tracks every lead from first message to paying customer.</p>`;}},
+  {id:'bookcall',icon:'📅',title:'Book a call with Nick',why:'Get personal help dialing in your offer, your numbers, and your marketing plan.',
+   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://calendly.com/lead-mining/executive">Book your call ↗</a><p class="note">Pick a time that works and come ready with your skill, your offer, and your income goal.</p>`;}},
 ];
 const checkSVG='<svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#1A1505" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const list=$('#setupList');
