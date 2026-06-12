@@ -498,7 +498,7 @@ function renderDashboard(){
     <div class="stat"><div class="v">${iu||'—'}</div><div class="l">Sales / mo</div></div>
     <div class="stat"><div class="v">${pct}%</div><div class="l">Set up</div></div></div>`;
   h+=`<div class="card"><div class="t-title" style="margin-bottom:4px">Get ready to sell</div>`;
-  TASKS.forEach(tk=>{const d=!!state.done[tk.id];h+=`<div class="dash-step ${d?'done':''}" data-go="2"><div class="dot2">${d?'✓':''}</div><div class="nm">${tk.icon} ${tk.title}${tk.sub?`<span style="display:block;font-size:11.5px;color:var(--sub);font-weight:500;margin-top:2px">${tk.sub}</span>`:''}</div><div class="go">›</div></div>`;});
+  TASKS.forEach(tk=>{const d=!!state.done[tk.id];h+=`<div class="dash-step ${d?'done':''}" data-go="2"><div class="dot2">${d?'✓':''}</div><div class="nm">${tk.icon} ${tk.title}${tk.sub?`<span style="display:block;font-size:12px;color:var(--coral);font-weight:600;margin-top:3px">• ${tk.sub}</span>`:''}</div><div class="go">›</div></div>`;});
   h+=`</div>`;
   h+=`<div class="nav-row"><div class="nav-card" data-go="1"><div class="ic">🎯</div><div class="t">Profile</div></div><div class="nav-card" data-go="2"><div class="ic">🧰</div><div class="t">Set Up</div></div><div class="nav-card" data-go="3"><div class="ic">📣</div><div class="t">Marketing</div></div></div>`;
   if(typeof cloudOn!=='undefined'&&cloudOn&&user)h+=`<p style="text-align:center;margin-top:18px"><a class="glink" id="logoutLink" style="cursor:pointer">Log out (${user.email||''})</a></p>`;
