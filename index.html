@@ -185,8 +185,7 @@
     <div class="tabs">
       <button class="tab active" data-tab="0"><span class="n">HOME</span>Dashboard</button>
       <button class="tab" data-tab="1"><span class="n">STEP 1</span>Profile</button>
-      <button class="tab" data-tab="2"><span class="n">STEP 2</span>Set Up</button>
-      <button class="tab" data-tab="3"><span class="n">STEP 3</span>Marketing</button>
+      <button class="tab" data-tab="2"><span class="n">STEP 2</span>Marketing</button>
     </div>
   </div>
 </header>
@@ -219,6 +218,8 @@
       <div class="field"><label><span class="dot"></span>Month 1 revenue goal ($)</label><input id="f_m1" inputmode="decimal" placeholder="e.g. 2000"></div>
       <div class="field"><label><span class="dot"></span>Month 2 revenue goal ($)</label><input id="f_m2" inputmode="decimal" placeholder="e.g. 5000"></div>
       <div class="field"><label><span class="dot"></span>Month 3 revenue goal ($)</label><input id="f_m3" inputmode="decimal" placeholder="e.g. 8000"></div>
+      <div class="field"><label><span class="dot"></span>How do you currently get leads?</label><input id="f_leads" placeholder="e.g. word of mouth, Instagram, referrals"></div>
+      <div class="field"><label><span class="dot"></span>Your phone number (optional)</label><input id="f_phone" placeholder="e.g. (480) 555-1234"></div>
       <span class="saved" id="savedMsg">Saved ✓</span>
     </div>
     <div class="card glow" id="numResults"></div>
@@ -229,19 +230,6 @@
   </section>
 
   <section class="panel" data-panel="2">
-    <div class="lead">
-      <div class="kick">Step 2 · Get ready to sell</div>
-      <h1>Set up to market</h1>
-      <p>A few foundations so your marketing actually converts. Most take a click.</p>
-    </div>
-    <div class="card">
-      <div class="field"><label><span class="dot"></span>How do you currently get leads?</label><input id="f_leads" placeholder="e.g. word of mouth, Instagram, referrals"></div>
-      <div class="field" style="margin:0"><label><span class="dot"></span>Your phone number (optional)</label><input id="f_phone" placeholder="e.g. (480) 555-1234"></div>
-      <p class="note">No real lead flow yet? Your 3 Facebook groups + the posts in Step 3 are the fastest free start.</p>
-    </div>
-  </section>
-
-  <section class="panel" data-panel="3">
     <div class="lead">
       <div class="kick">Step 3 · Go get customers</div>
       <h1>Your marketing kit</h1>
@@ -343,7 +331,7 @@ function goTab(i){$$('.tab').forEach(x=>x.classList.toggle('active',x.dataset.ta
   state.tab=String(i);save();window.scrollTo({top:0,behavior:'smooth'});
   if(String(i)==='0')renderDashboard();
   if(String(i)==='1')renderNumbers();
-  if(String(i)==='3')renderMarketing();}
+  if(String(i)==='2')renderMarketing();}
 $$('.tab').forEach(t=>t.addEventListener('click',()=>goTab(t.dataset.tab)));
 
 const biz=()=>F('name','your business'), svc=()=>F('product','what you do');
@@ -430,7 +418,7 @@ const TASKS=[
      b.innerHTML=`<div class="out" style="white-space:pre-wrap;font-size:14px">${msg}</div><button class="btn btn-primary btn-sm" id="cp_rev5">Copy message</button><p class="note">Send this to 5 friends or past customers. Swap in your Google or Facebook review link where it says [paste your review link].</p>`;
      b.querySelector('#cp_rev5').onclick=()=>copy(msg);}},
   {id:'groups',icon:'👥',title:'Join 3 FB groups to market in',why:'Find 3 active groups full of your customers — that\'s where you\'ll post.',
-   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://www.facebook.com/search/groups/?q=${encodeURIComponent(F('customer','small business'))}">Search Facebook groups ↗</a><a class="btn btn-glass btn-sm" id="toMkt" style="cursor:pointer">Add my 3 groups →</a><p class="note">Join 3 groups where your customers hang out, then add them in the Marketing tab.</p>`;b.querySelector('#toMkt').onclick=()=>goTab(3);}},
+   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://www.facebook.com/search/groups/?q=${encodeURIComponent(F('customer','small business'))}">Search Facebook groups ↗</a><a class="btn btn-glass btn-sm" id="toMkt" style="cursor:pointer">Add my 3 groups →</a><p class="note">Join 3 groups where your customers hang out, then add them in the Marketing tab.</p>`;b.querySelector('#toMkt').onclick=()=>goTab(2);}},
   {id:'value',icon:'💎',title:'Give massive value to those groups',why:'Be helpful first — answer questions, share free tips, build trust. Then the sales come easy.',
    act:b=>{b.innerHTML=`<p class="note" style="margin:0">Before you ever pitch: answer questions, drop free tips, and be genuinely useful in your 3 groups. Give for a week or two and people start coming to you. Your 20 AI posts are perfect fuel for this.</p>`;}},
   {id:'aiposts',icon:'✍️',title:'Get AI to write 20 posts per service',why:'Claude writes 20 compelling posts (with CTAs) for each thing you sell — a month+ of content.',
@@ -493,7 +481,7 @@ function renderDashboard(){
   h+=`<div class="card glow"><div class="t-title">Your Profile</div>`;
   if(iu){h+=`<p class="note" style="margin:6px 0 10px">To earn <b>${money(ideal)}/month</b> at ${money(p)} per sale:</p>
     <div class="big"><div><span class="b-lab">Sell this many / month</span><span class="b-val pos">${iu}</span></div><div><span class="b-lab">About / week</span><span class="b-val">${Math.ceil(iu/4.33)}</span></div></div>
-    <button class="btn btn-primary btn-sm" data-go="3" style="margin-top:12px">Go get them →</button>`;}
+    <button class="btn btn-primary btn-sm" data-go="2" style="margin-top:12px">Go get them →</button>`;}
   else{h+=`<p class="note" style="margin:6px 0 10px">Add your price + income goal and we'll show you exactly how many sales you need.</p><button class="btn btn-primary btn-sm" data-go="1">Set up my profile →</button>`;}
   h+=`</div>`;
   h+=`<div class="stat-row">
@@ -503,7 +491,7 @@ function renderDashboard(){
   h+=`<div class="card"><div class="t-title" style="margin-bottom:4px">Get ready to sell</div>`;
   TASKS.forEach(tk=>{const d=!!state.done[tk.id];h+=`<div class="dash-step ${d?'done':''}" data-go="1"><div class="dot2">${d?'✓':''}</div><div class="nm">${tk.icon} ${tk.title}</div><div class="go">›</div></div>`;});
   h+=`</div>`;
-  h+=`<div class="nav-row"><div class="nav-card" data-go="1"><div class="ic">🎯</div><div class="t">Profile</div></div><div class="nav-card" data-go="2"><div class="ic">🧰</div><div class="t">Set Up</div></div><div class="nav-card" data-go="3"><div class="ic">📣</div><div class="t">Marketing</div></div></div>`;
+  h+=`<div class="nav-row"><div class="nav-card" data-go="1"><div class="ic">🎯</div><div class="t">Profile</div></div><div class="nav-card" data-go="2"><div class="ic">📣</div><div class="t">Marketing</div></div></div>`;
   if(typeof cloudOn!=='undefined'&&cloudOn&&user)h+=`<p style="text-align:center;margin-top:18px"><a class="glink" id="logoutLink" style="cursor:pointer">Log out (${user.email||''})</a></p>`;
   const body=$('#dashBody');body.innerHTML=h;body.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>goTab(+el.dataset.go)));
   const lo=$('#logoutLink');if(lo)lo.onclick=()=>{if(window.sb)window.sb.auth.signOut().then(()=>{sessionStorage.removeItem('pulled');location.reload();});};
