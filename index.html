@@ -489,7 +489,7 @@ function renderDashboard(){
   const p=num(F('price','')), ideal=num(F('idealIncome','')), iu=(p&&ideal)?Math.ceil(ideal/p):0;
   const doneN=TASKS.filter(t=>state.done[t.id]).length,totN=TASKS.length,pct=Math.round(doneN/totN*100);
   let h='';
-  h+=`<div class="card glow"><div class="t-title">Your number</div>`;
+  h+=`<div class="card glow"><div class="t-title">Your Profile</div>`;
   if(iu){h+=`<p class="note" style="margin:6px 0 10px">To earn <b>${money(ideal)}/month</b> at ${money(p)} per sale:</p>
     <div class="big"><div><span class="b-lab">Sell this many / month</span><span class="b-val pos">${iu}</span></div><div><span class="b-lab">About / week</span><span class="b-val">${Math.ceil(iu/4.33)}</span></div></div>
     <button class="btn btn-primary btn-sm" data-go="3" style="margin-top:12px">Go get them →</button>`;}
