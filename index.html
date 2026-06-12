@@ -561,7 +561,7 @@ if(cloudOn){
 }
 
 /* ---- Send Everything to Nick (email) ---- */
-function sendToNick(){
+async function sendToNick(){
   const f=state.fields, L=(lab,k)=>`${lab}: ${(f[k]&&f[k].trim())||'—'}`;
   const p=num(F('price','')), ideal=num(F('idealIncome','')), iu=(p&&ideal)?Math.ceil(ideal/p):0;
   const parts=[`Be Seen — profile from ${F('name','(no name given)')}`];
@@ -576,9 +576,20 @@ function sendToNick(){
     `FB groups: ${[f.group1,f.group2,f.group3].filter(Boolean).join(', ')||'—'}`,
     `Review contacts: ${[f.rev1,f.rev2,f.rev3].filter(Boolean).join(', ')||'—'}`,
     '','(sent from Be Seen — aisamurais.com/beseen)');
-  const subj=`Be Seen profile — ${F('name','new lead')}`;
-  location.href=`mailto:nicklikestowork@gmail.com?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(parts.join('\n'))}`;
-  toast('Opening your email to send Nick ✉️');
+  const body=parts.join('\n'), subj=`Be Seen profile — ${F('name','new lead')}`;
+  const btn=$('#sendNick'), orig=btn.textContent; btn.textContent='Sending…'; btn.disabled=true;
+  try{
+    const res=await fetch('https://api.web3forms.com/submit',{method:'POST',
+      headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body:JSON.stringify({access_key:'dfc5e13a-03e9-4dcf-8668-21620a439cb3',subject:subj,
+        from_name:'Be Seen App',email:(cloudOn&&user&&user.email)||'noreply@beseen.app',message:body})});
+    const j=await res.json();
+    if(j&&j.success){btn.textContent='Sent ✓';toast('Sent to Nick ✓');setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},2500);return;}
+    throw new Error('post failed');
+  }catch(e){
+    btn.textContent=orig;btn.disabled=false;toast('Opening your email as backup…');
+    location.href=`mailto:nicklikestowork@gmail.com?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+  }
 }
 $('#sendNick').onclick=sendToNick;
 
