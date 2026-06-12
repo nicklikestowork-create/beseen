@@ -428,7 +428,7 @@ const TASKS=[
    act:b=>{const msg=`Hey! 🙏 Quick favor — I'm getting ${F('name','my business')} off the ground and honest reviews make a huge difference. If you've got 60 seconds, would you leave me a quick review? Here's the link: [paste your review link]. Thank you so much — it really means a lot!`;
      b.innerHTML=`<div class="out" style="white-space:pre-wrap;font-size:14px">${msg}</div><button class="btn btn-primary btn-sm" id="cp_rev5">Copy message</button><p class="note">Send this to 5 friends or past customers. Swap in your Google or Facebook review link where it says [paste your review link].</p>`;
      b.querySelector('#cp_rev5').onclick=()=>copy(msg);}},
-  {id:'groups',icon:'👥',title:'Join 3 FB groups to market in',why:'Find 3 active groups full of your customers — that\'s where you\'ll post.',
+  {id:'groups',icon:'👥',title:'Join 3 FB groups to market in',sub:'Give massive value to those groups',why:'Find 3 active groups full of your customers — that\'s where you\'ll post.',
    act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://www.facebook.com/search/groups/?q=${encodeURIComponent(F('customer','small business'))}">Search Facebook groups ↗</a><a class="btn btn-glass btn-sm" id="toMkt" style="cursor:pointer">Add my 3 groups →</a><p class="note">Join 3 groups where your customers hang out, then add them in the Marketing tab.</p>`;b.querySelector('#toMkt').onclick=()=>goTab(3);}},
   {id:'aiposts',icon:'✍️',title:'Get AI to write 20 posts per service',why:'Claude writes 20 compelling posts (with CTAs) for each thing you sell — a month+ of content.',
    act:b=>{b.innerHTML=`<button class="btn btn-primary btn-sm" id="genP20">✨ Write my posts with AI</button><div id="o_p20"></div>`;
@@ -498,7 +498,7 @@ function renderDashboard(){
     <div class="stat"><div class="v">${iu||'—'}</div><div class="l">Sales / mo</div></div>
     <div class="stat"><div class="v">${pct}%</div><div class="l">Set up</div></div></div>`;
   h+=`<div class="card"><div class="t-title" style="margin-bottom:4px">Get ready to sell</div>`;
-  TASKS.forEach(tk=>{const d=!!state.done[tk.id];h+=`<div class="dash-step ${d?'done':''}" data-go="2"><div class="dot2">${d?'✓':''}</div><div class="nm">${tk.icon} ${tk.title}</div><div class="go">›</div></div>`;});
+  TASKS.forEach(tk=>{const d=!!state.done[tk.id];h+=`<div class="dash-step ${d?'done':''}" data-go="2"><div class="dot2">${d?'✓':''}</div><div class="nm">${tk.icon} ${tk.title}${tk.sub?`<span style="display:block;font-size:11.5px;color:var(--sub);font-weight:500;margin-top:2px">${tk.sub}</span>`:''}</div><div class="go">›</div></div>`;});
   h+=`</div>`;
   h+=`<div class="nav-row"><div class="nav-card" data-go="1"><div class="ic">🎯</div><div class="t">Profile</div></div><div class="nav-card" data-go="2"><div class="ic">🧰</div><div class="t">Set Up</div></div><div class="nav-card" data-go="3"><div class="ic">📣</div><div class="t">Marketing</div></div></div>`;
   if(typeof cloudOn!=='undefined'&&cloudOn&&user)h+=`<p style="text-align:center;margin-top:18px"><a class="glink" id="logoutLink" style="cursor:pointer">Log out (${user.email||''})</a></p>`;
