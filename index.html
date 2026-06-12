@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0A0A0B" />
+<title>Fuel Your Freedom Marketer — sell your skill, starting today</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#0A0A0B; --bg2:#141210;
+    --ink:#F6F1E3; --sub:#A39B86;
+    --coral:#E8C26B; --orange:#C9A24B; --indigo:#B8860B; --pink:#F0D27A;
+    --ok:#D4AF37;
+    --card:rgba(255,255,255,.035); --cardline:rgba(232,194,107,.18);
+    --grad:linear-gradient(120deg,#F0D27A,#E8C26B 45%,#C9A24B);
+    --grad-soft:linear-gradient(120deg,rgba(232,194,107,.14),rgba(184,134,11,.12));
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;padding:0 0 60px;overflow-x:hidden}
+  h1,h2,h3,.logo,.tab,.lead h1,.t-title{font-family:"Plus Jakarta Sans",Inter,sans-serif}
+
+  .blob{position:fixed;border-radius:50%;filter:blur(70px);opacity:.5;z-index:0;pointer-events:none}
+  .b1{width:380px;height:380px;background:#E8C26B;top:-120px;left:-100px;animation:f1 18s ease-in-out infinite;opacity:.32}
+  .b2{width:340px;height:340px;background:#B8860B;top:10%;right:-120px;animation:f2 22s ease-in-out infinite;opacity:.32}
+  .b3{width:300px;height:300px;background:#C9A24B;bottom:-80px;left:20%;animation:f3 20s ease-in-out infinite;opacity:.3}
+  @keyframes f1{50%{transform:translate(60px,80px) scale(1.15)}}
+  @keyframes f2{50%{transform:translate(-70px,60px) scale(1.1)}}
+  @keyframes f3{50%{transform:translate(50px,-60px) scale(1.2)}}
+
+  .wrap{max-width:680px;margin:0 auto;padding:0 18px;position:relative;z-index:1}
+
+  header{position:sticky;top:0;z-index:30;backdrop-filter:saturate(160%) blur(18px);
+    background:linear-gradient(180deg,rgba(10,10,11,.94),rgba(10,10,11,.62));
+    border-bottom:1px solid var(--cardline);padding:env(safe-area-inset-top) 0 0}
+  .head-row{display:flex;align-items:center;gap:11px;padding:13px 0 11px}
+  .logo{font-weight:800;font-size:15px;letter-spacing:-.3px;display:flex;align-items:center;gap:7px;line-height:1.1}
+  .logo .mark{width:26px;height:26px;border-radius:9px;background:var(--grad);display:grid;place-items:center;
+    box-shadow:0 6px 18px rgba(255,107,91,.45);font-size:14px}
+  .logo .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  .ring{margin-left:auto;width:42px;height:42px;position:relative}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .pct{position:absolute;inset:0;display:grid;place-items:center;font-size:11px;font-weight:800;font-family:"Plus Jakarta Sans"}
+
+  .tabs{display:flex;gap:5px;padding:4px;margin:0 0 12px;background:rgba(255,255,255,.05);
+    border:1px solid var(--cardline);border-radius:16px}
+  .tab{flex:1;border:none;cursor:pointer;font:inherit;font-weight:700;font-size:12.5px;color:var(--sub);
+    padding:9px 4px;border-radius:12px;background:transparent;display:flex;flex-direction:column;
+    align-items:center;gap:2px;transition:.22s;line-height:1.1}
+  .tab .n{font-size:9px;font-weight:800;letter-spacing:.6px;opacity:.65}
+  .tab.active{color:#1A1505;background:var(--grad);box-shadow:0 8px 22px rgba(232,194,107,.3)}
+  .tab.active .n{opacity:.95}
+  .tab:active{transform:scale(.96)}
+
+  .panel{display:none}
+  .panel.active{display:block;animation:rise .4s cubic-bezier(.2,.7,.2,1)}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .lead{padding:22px 0 6px}
+  .lead .kick{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lead h1{font-size:30px;line-height:1.1;letter-spacing:-.8px;margin:6px 0 8px;font-weight:800}
+  .lead p{margin:0;color:var(--sub);font-size:15px;line-height:1.55}
+
+  .card{background:var(--card);border:1px solid var(--cardline);border-radius:22px;
+    padding:18px;margin:14px 0;backdrop-filter:blur(8px);
+    box-shadow:0 12px 40px rgba(0,0,0,.35);animation:rise .5s both}
+  .card.glow{background:var(--grad-soft);border-color:rgba(255,107,91,.3)}
+
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;margin-bottom:6px;color:#D9D1E6}
+  .field label .dot{width:6px;height:6px;border-radius:50%;background:var(--grad)}
+  .field input,.field textarea{width:100%;border:1px solid var(--cardline);background:rgba(255,255,255,.04);
+    border-radius:13px;padding:12px 13px;font:inherit;font-size:15px;color:var(--ink);resize:vertical;transition:.18s}
+  .field input::placeholder,.field textarea::placeholder{color:#6f6680}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--coral);background:rgba(255,255,255,.07);
+    box-shadow:0 0 0 4px rgba(255,107,91,.12)}
+  .saved{font-size:12px;color:var(--ok);font-weight:700;opacity:0;transition:.3s}
+  .saved.show{opacity:1}
+
+  .task{display:flex;align-items:flex-start;gap:13px;padding:16px 0;border-bottom:1px solid var(--cardline)}
+  .task:last-child{border-bottom:none}
+  .medal{width:42px;height:42px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;font-size:20px;
+    background:var(--grad-soft);border:1px solid var(--cardline);transition:.25s}
+  .task.done .medal{background:var(--grad);box-shadow:0 8px 20px rgba(255,107,91,.4)}
+  .t-main{flex:1;min-width:0}
+  .t-row{display:flex;align-items:center;gap:10px}
+  .t-title{font-weight:700;font-size:16.5px}
+  .task.done .t-title{color:var(--sub);text-decoration:line-through;text-decoration-color:rgba(255,255,255,.2)}
+  .t-why{font-size:13px;color:var(--sub);margin-top:3px;line-height:1.45}
+  .t-act{margin-top:11px}
+  .check{margin-left:auto;width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.22);
+    flex:0 0 auto;display:grid;place-items:center;transition:.2s;cursor:pointer;background:rgba(255,255,255,.03)}
+  .check svg{width:15px;height:15px;opacity:0;transform:scale(.4);transition:.25s}
+  .task.done .check{background:var(--ok);border-color:var(--ok)}
+  .task.done .check svg{opacity:1;transform:scale(1)}
+
+  .btn{display:inline-flex;align-items:center;gap:7px;border:none;cursor:pointer;font:inherit;
+    font-weight:700;font-size:14px;padding:12px 18px;border-radius:13px;text-decoration:none;transition:.16s;margin:4px 7px 4px 0}
+  .btn:active{transform:scale(.96)}
+  .btn-primary{background:var(--grad);color:#1A1505;box-shadow:0 10px 26px rgba(232,194,107,.35)}
+  .btn-glass{background:rgba(255,255,255,.07);color:var(--ink);border:1px solid var(--cardline)}
+  .btn-sm{padding:9px 14px;font-size:13px}
+
+  .out{background:rgba(0,0,0,.22);border:1px solid var(--cardline);border-radius:16px;padding:14px;margin:12px 0 8px}
+  .dfy{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.4px;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+  .gen-item{padding:11px 0;border-bottom:1px solid var(--cardline);font-size:14px;line-height:1.55}
+  .gen-item:last-child{border-bottom:none}
+  .gen-item .num{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;font-size:11px;
+    font-weight:800;background:var(--grad);color:#1A1505;margin-right:8px;vertical-align:middle}
+  .gen-item b{color:#fff}
+  .ad{padding:13px 0;border-bottom:1px solid var(--cardline)}
+  .ad:last-child{border-bottom:none}
+  .ad .lab{font-size:10px;font-weight:800;letter-spacing:.5px;color:var(--coral);text-transform:uppercase}
+  .ad .pt{font-size:14px;line-height:1.5;white-space:pre-wrap;color:#D9D1E6;margin:0}
+  .glink{color:var(--indigo);font-weight:700;text-decoration:none}
+  .note{font-size:12px;color:var(--sub);margin-top:9px;line-height:1.5}
+
+  .stat-row{display:flex;gap:10px;margin:14px 0}
+  .stat{flex:1;background:var(--card);border:1px solid var(--cardline);border-radius:18px;padding:14px 8px;text-align:center;backdrop-filter:blur(8px)}
+  .stat .v{font-family:"Plus Jakarta Sans";font-size:21px;font-weight:800;letter-spacing:-.5px}
+  .stat .l{font-size:10.5px;color:var(--sub);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
+  .dash-step{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--cardline);cursor:pointer}
+  .dash-step:last-child{border-bottom:none}
+  .dash-step .dot2{width:23px;height:23px;border-radius:50%;border:2px solid rgba(255,255,255,.2);flex:0 0 auto;
+    display:grid;place-items:center;font-size:12px;font-weight:800}
+  .dash-step.done .dot2{background:var(--ok);border-color:var(--ok);color:#1A1505}
+  .dash-step .nm{font-size:14.5px;font-weight:600}
+  .dash-step.done .nm{color:var(--sub);text-decoration:line-through;text-decoration-color:rgba(255,255,255,.2)}
+  .dash-step .go{margin-left:auto;color:var(--sub);font-size:18px}
+  .nav-row{display:flex;gap:10px;margin-top:2px}
+  .nav-card{flex:1;background:var(--card);border:1px solid var(--cardline);border-radius:18px;padding:15px 8px;
+    text-align:center;cursor:pointer;transition:.15s}
+  .nav-card:active{transform:scale(.96)}
+  .nav-card .ic{font-size:22px}
+  .nav-card .t{font-size:12.5px;font-weight:700;margin-top:5px}
+  .big{display:flex;gap:14px}
+  .big>div{flex:1;display:flex;flex-direction:column;gap:3px}
+  .b-lab{font-size:11.5px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.5px}
+  .b-val{font-family:"Plus Jakarta Sans";font-size:25px;font-weight:800;letter-spacing:-.5px}
+  .b-val.pos{color:var(--ok)}
+
+  .auth{position:fixed;inset:0;z-index:100;background:rgba(10,10,11,.97);backdrop-filter:blur(10px);
+    display:none;align-items:center;justify-content:center;padding:24px}
+  .auth.show{display:flex}
+  .auth-card{width:100%;max-width:380px;background:var(--card);border:1px solid var(--cardline);
+    border-radius:24px;padding:28px 22px;box-shadow:0 24px 70px rgba(0,0,0,.6);animation:rise .4s both}
+  .auth-card .logo{justify-content:center;font-size:17px;margin-bottom:14px}
+  .auth h2{font-family:"Plus Jakarta Sans";text-align:center;margin:2px 0 2px;font-size:23px;letter-spacing:-.5px}
+  .auth .sub{text-align:center;color:var(--sub);font-size:13.5px;margin:0 0 20px;line-height:1.5}
+  .auth .btn{width:100%;justify-content:center;margin:10px 0 0}
+  .auth .err{color:#FF9A9A;font-size:13px;text-align:center;min-height:18px;margin-top:10px;line-height:1.4}
+  .auth .switch{text-align:center;font-size:13px;color:var(--sub);margin-top:14px}
+  .auth .switch a{color:var(--coral);font-weight:700;cursor:pointer}
+  .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(24px);
+    background:var(--grad);color:#1A1505;padding:11px 20px;border-radius:99px;font-size:13.5px;font-weight:700;
+    opacity:0;pointer-events:none;transition:.3s cubic-bezier(.2,.7,.2,1);z-index:60;box-shadow:0 12px 30px rgba(232,194,107,.45)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  canvas#cf{position:fixed;inset:0;pointer-events:none;z-index:55}
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<canvas id="cf"></canvas>
+
+<header>
+  <div class="wrap">
+    <div class="head-row">
+      <span class="logo"><span class="mark">📣</span><span>Fuel Your Freedom <span class="g">Marketer</span></span></span>
+      <div class="ring" id="ring">
+        <svg width="42" height="42"><circle cx="21" cy="21" r="17" stroke="rgba(255,255,255,.12)" stroke-width="4" fill="none"/>
+        <circle id="ringbar" cx="21" cy="21" r="17" stroke="url(#rg)" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="106.8" stroke-dashoffset="106.8"/>
+        <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F0D27A"/><stop offset="1" stop-color="#C9A24B"/></linearGradient></defs></svg>
+        <span class="pct" id="pct">0%</span>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="0"><span class="n">HOME</span>Dashboard</button>
+      <button class="tab" data-tab="1"><span class="n">STEP 1</span>Profile</button>
+      <button class="tab" data-tab="2"><span class="n">STEP 2</span>Set Up</button>
+      <button class="tab" data-tab="3"><span class="n">STEP 3</span>Marketing</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="panel active" data-panel="0">
+    <div class="lead">
+      <div class="kick">Your plan</div>
+      <h1 id="dashTitle">Dashboard</h1>
+      <p id="dashSub">Your numbers, your setup, and your marketing — all in one place.</p>
+    </div>
+    <div id="dashBody"></div>
+  </section>
+
+  <section class="panel" data-panel="1">
+    <div class="lead">
+      <div class="kick">Step 1 · About you &amp; your goals</div>
+      <h1>Your Profile</h1>
+      <p>Get clear on what you sell and what you want to make. We'll show you exactly how many sales it takes.</p>
+    </div>
+    <div class="card">
+      <div class="field"><label><span class="dot"></span>Your name or brand</label><input id="f_name" placeholder="e.g. Jordan Smith Coaching"></div>
+      <div class="field"><label><span class="dot"></span>Your current marketable skill</label><input id="f_skillset" placeholder="e.g. social media management"></div>
+      <div class="field"><label><span class="dot"></span>What do you sell?</label><input id="f_product" placeholder="e.g. done-for-you content packages"></div>
+      <div class="field"><label><span class="dot"></span>Who do you help?</label><input id="f_customer" placeholder="e.g. busy coaches & creators"></div>
+      <div class="field"><label><span class="dot"></span>Price per sale ($)</label><input id="f_price" inputmode="decimal" placeholder="e.g. 500"></div>
+      <div class="field"><label><span class="dot"></span>Other products you sell</label><input id="f_otherProducts" placeholder="e.g. 1-hr strategy call, templates"></div>
+      <div class="field"><label><span class="dot"></span>Ideal monthly income ($)</label><input id="f_idealIncome" inputmode="decimal" placeholder="e.g. 10000"></div>
+      <div class="field"><label><span class="dot"></span>Month 1 revenue goal ($)</label><input id="f_m1" inputmode="decimal" placeholder="e.g. 2000"></div>
+      <div class="field"><label><span class="dot"></span>Month 2 revenue goal ($)</label><input id="f_m2" inputmode="decimal" placeholder="e.g. 5000"></div>
+      <div class="field"><label><span class="dot"></span>Month 3 revenue goal ($)</label><input id="f_m3" inputmode="decimal" placeholder="e.g. 8000"></div>
+      <span class="saved" id="savedMsg">Saved ✓</span>
+    </div>
+    <div class="card glow" id="numResults"></div>
+  </section>
+
+  <section class="panel" data-panel="2">
+    <div class="lead">
+      <div class="kick">Step 2 · Get ready to sell</div>
+      <h1>Set up to market</h1>
+      <p>A few foundations so your marketing actually converts. Most take a click.</p>
+    </div>
+    <div class="card">
+      <div class="field"><label><span class="dot"></span>How do you currently get leads?</label><input id="f_leads" placeholder="e.g. word of mouth, Instagram, referrals"></div>
+      <div class="field" style="margin:0"><label><span class="dot"></span>Your phone number (optional)</label><input id="f_phone" placeholder="e.g. (480) 555-1234"></div>
+      <p class="note">No real lead flow yet? Your 3 Facebook groups + the posts in Step 3 are the fastest free start.</p>
+    </div>
+    <div class="card" id="setupList"></div>
+  </section>
+
+  <section class="panel" data-panel="3">
+    <div class="lead">
+      <div class="kick">Step 3 · Go get customers</div>
+      <h1>Your marketing kit</h1>
+      <p>Everything you need to start selling today — written for you. Copy, paste, post.</p>
+    </div>
+
+    <div class="card">
+      <div class="t-title">Your 3 Facebook groups</div>
+      <p class="note" style="margin:2px 0 12px">Where your customers already hang out. This is where you'll post.</p>
+      <div class="field"><label><span class="dot"></span>Group 1</label><input id="f_group1" placeholder="e.g. Phoenix Small Business Owners"></div>
+      <div class="field"><label><span class="dot"></span>Group 2</label><input id="f_group2" placeholder="e.g. Local Moms of Scottsdale"></div>
+      <div class="field"><label><span class="dot"></span>Group 3</label><input id="f_group3" placeholder="e.g. AZ Entrepreneurs"></div>
+    </div>
+
+    <div class="card">
+      <span class="dfy">✨ DONE FOR YOU</span>
+      <div class="t-title">10 posts that sell</div>
+      <p class="note" style="margin:2px 0 12px">Promote your offer with a clear call to action. Post a few a week in your groups.</p>
+      <div class="field"><label><span class="dot"></span>Your offer / promo (optional)</label><input id="f_offer" placeholder="e.g. free 15-min strategy call this week"></div>
+      <div id="o_mposts"></div>
+      <button class="btn btn-glass btn-sm" id="gen_mp" style="margin-top:10px">↻ Regenerate</button>
+    </div>
+
+    <div class="card">
+      <span class="dfy">✨ DONE FOR YOU</span>
+      <div class="t-title">Get 5-star reviews</div>
+      <p class="note" style="margin:2px 0 12px">3 people who'd vouch for you. We'll write each a ready-to-send ask.</p>
+      <div class="field"><label><span class="dot"></span>Person 1</label><input id="f_rev1" placeholder="e.g. a past customer"></div>
+      <div class="field"><label><span class="dot"></span>Person 2</label><input id="f_rev2" placeholder="e.g. a friend you've helped"></div>
+      <div class="field"><label><span class="dot"></span>Person 3</label><input id="f_rev3" placeholder="e.g. a referral"></div>
+      <div id="o_reviews"></div>
+    </div>
+
+    <div class="card">
+      <span class="dfy">✨ DONE FOR YOU</span>
+      <div class="t-title">Warm outreach message</div>
+      <p class="note" style="margin:2px 0 10px">Send this to people in your groups to start real conversations.</p>
+      <div class="out" id="o_outreach" style="white-space:pre-wrap;font-size:14px"></div>
+      <button class="btn btn-primary btn-sm" id="cp_out">Copy message</button>
+    </div>
+
+    <div class="card">
+      <span class="dfy">✨ DONE FOR YOU</span>
+      <div class="t-title">Your bio / elevator pitch</div>
+      <p class="note" style="margin:2px 0 10px">For your Facebook page, profile, or intro post.</p>
+      <div class="out" id="o_bio" style="white-space:pre-wrap;font-size:14px"></div>
+      <button class="btn btn-primary btn-sm" id="cp_bio">Copy bio</button>
+    </div>
+  </section>
+
+</div>
+
+<div class="auth" id="auth">
+  <div class="auth-card">
+    <span class="logo"><span class="mark">📣</span><span>Fuel Your Freedom <span class="g">Marketer</span></span></span>
+    <h2 id="authTitle">Welcome back</h2>
+    <p class="sub" id="authSub">Log in to pick up where you left off.</p>
+    <div class="field"><label><span class="dot"></span>Email</label><input id="authEmail" type="email" placeholder="you@email.com" autocomplete="email"></div>
+    <div class="field"><label><span class="dot"></span>Password</label><input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="btn btn-primary" id="authBtn">Log in</button>
+    <div class="err" id="authErr"></div>
+    <div class="switch" id="authSwitch">New here? <a id="authToggle">Create an account</a></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const KEY='fyfmarketer.v1';
+let state=JSON.parse(localStorage.getItem(KEY)||'{}');
+state.fields=state.fields||{}; state.done=state.done||{};
+let cloudSave=()=>{};
+function save(){localStorage.setItem(KEY,JSON.stringify(state));cloudSave();}
+function F(k,fb){return (state.fields[k]&&state.fields[k].trim())||fb;}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function num(v){return parseFloat(String(v||'').replace(/[^0-9.]/g,''))||0;}
+function money(n){return '$'+Math.round(n).toLocaleString('en-US');}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1700);}
+function copy(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>toast('Copied ✓'),()=>fallbackCopy(t));}
+  else fallbackCopy(t);
+}
+function fallbackCopy(t){try{const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('Copied ✓');}catch(e){toast('Copy failed — long-press to copy');}}
+
+const cf=$('#cf'),ctx=cf.getContext('2d');let parts=[];
+function size(){cf.width=innerWidth;cf.height=innerHeight;}size();addEventListener('resize',size);
+function burst(){const cols=['#F0D27A','#E8C26B','#C9A24B','#D4AF37','#FFFFFF'];
+  for(let i=0;i<90;i++)parts.push({x:innerWidth/2,y:innerHeight/3,vx:(Math.cos(i)*6)+(i%5-2),vy:-(Math.random()*9+4),
+    g:.32,s:Math.random()*7+4,c:cols[i%cols.length],r:Math.random()*6,vr:(i%2?.2:-.2),life:120});
+  if(!cf._on){cf._on=1;tick();}}
+function tick(){ctx.clearRect(0,0,cf.width,cf.height);parts.forEach(p=>{p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.life--;
+  ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.5);ctx.restore();});
+  parts=parts.filter(p=>p.life>0&&p.y<cf.height+40);
+  if(parts.length)requestAnimationFrame(tick);else{ctx.clearRect(0,0,cf.width,cf.height);cf._on=0;}}
+
+function goTab(i){$$('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===String(i)));
+  $$('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===String(i)));
+  state.tab=String(i);save();window.scrollTo({top:0,behavior:'smooth'});
+  if(String(i)==='0')renderDashboard();
+  if(String(i)==='1')renderNumbers();
+  if(String(i)==='3')renderMarketing();}
+$$('.tab').forEach(t=>t.addEventListener('click',()=>goTab(t.dataset.tab)));
+
+const biz=()=>F('name','your business'), svc=()=>F('product','what you do');
+
+/* ---- Step 1 fields + calculator ---- */
+const PF=['name','skillset','product','customer','price','otherProducts','idealIncome','m1','m2','m3'];
+PF.forEach(f=>{const el=$('#f_'+f);el.value=state.fields[f]||'';
+  el.addEventListener('input',()=>{state.fields[f]=el.value;save();renderNumbers();
+    const m=$('#savedMsg');m.classList.add('show');clearTimeout(m._t);m._t=setTimeout(()=>m.classList.remove('show'),1200);});});
+
+function renderNumbers(){
+  const box=$('#numResults');
+  const p=num(F('price','')), ideal=num(F('idealIncome','')), m1=num(F('m1','')),m2=num(F('m2','')),m3=num(F('m3',''));
+  if(!p||(!ideal&&!m1&&!m2&&!m3)){box.innerHTML=`<span class="dfy">✨ your numbers</span><p class="note" style="margin:0">Add your <b>price per sale</b> and at least one <b>income goal</b> above — we'll do the math for you.</p>`;return;}
+  const iu=ideal?Math.ceil(ideal/p):0;
+  const row=(lbl,g)=>{if(!g)return '';const u=Math.ceil(g/p);return `<div class="gen-item"><b>${lbl}</b> — sell <b>${u}</b> &nbsp;<span style="color:var(--sub)">(${money(g)} ÷ ${money(p)} · ~${Math.ceil(u/4.33)}/week)</span></div>`;};
+  box.innerHTML=`<span class="dfy">✨ your numbers</span>
+    ${iu?`<div class="big" style="margin-bottom:12px"><div><span class="b-lab">To earn ${money(ideal)}/mo</span><span class="b-val pos">${iu} sales</span></div><div><span class="b-lab">That's about</span><span class="b-val">${Math.ceil(iu/4.33)}/week</span></div></div>`:''}
+    <div class="out" style="margin:0">${row('Month 1',m1)||''}${row('Month 2',m2)||''}${row('Month 3',m3)||''}${(!m1&&!m2&&!m3)?'<div class="gen-item" style="color:var(--sub)">Add monthly goals to see your ramp.</div>':''}</div>`;
+}
+
+/* ---- Step 3 generators ---- */
+function ctaLine(){const ph=F('phone','');return ph?`📞 Call or text ${ph}`:`💬 DM me “INFO” and I'll send the details.`;}
+function postsM(){
+  const n=F('name','I'), sk=F('skillset','what I do'), prod=F('product','what I offer'), c=F('customer','people who need this'), offer=F('offer',''), cta=ctaLine();
+  const P=[
+    ['Offer',`I help ${c} with ${prod}.${offer?` ${cap(offer)}.`:''}\nIf that's you, let's make it happen.\n${cta}`],
+    ['Problem → solution',`Struggling with ${sk}? Most ${c} are — and it quietly costs them.\nThat's exactly what I take off your plate.\n${cta}`],
+    ['Result',`Nothing beats watching ${c} win with ${prod}. That's the whole reason I do this.\nWant results like that?\n${cta}`],
+    ['Why I started',`I got into ${sk} because I was tired of watching ${c} struggle with it.\nNow I help them fix it for good.\n${cta}`],
+    ['Free value',`Quick tip for ${c}: ${sk} only works when it's consistent. No time for that? That's where I come in.\n${cta}`],
+    ['Myth-bust',`Myth: ${c} have to figure ${sk} out alone.\nTruth: you don't. ${cap(prod)} makes it simple.\n${cta}`],
+    ['Engagement',`Question for ${c}: what's your #1 struggle with ${sk}? Drop it below 👇\nI'll reply with a tip — and if you'd rather have it handled, ${cta}`],
+    ['Urgency',`Taking on a few new clients this month for ${prod}.${offer?` ${cap(offer)}.`:''}\nSpots are limited — ${cta}`],
+    ['Proof',`"Honestly the best decision I made." That's what ${c} tell me after we work together on ${prod}.\nReady for the same?\n${cta}`],
+    ['Direct CTA',`If you're ${c} and you want ${prod} done right — this is your sign.\n${cta}`],
+  ];
+  return P.map(x=>({lab:x[0],pt:x[1]}));
+}
+function renderPostsM(){const a=postsM();$('#o_mposts').innerHTML=`<div class="out"><span class="dfy">✨ ready to post</span>`+
+  a.map((x,i)=>`<div class="ad"><div class="lab">Post ${i+1} · ${x.lab}</div><div class="pt">${x.pt}</div></div>`).join('')+
+  `</div><button class="btn btn-primary btn-sm" id="cp_mp">Copy all 10</button>`;
+  $('#cp_mp').onclick=()=>copy(a.map((x,i)=>`POST ${i+1} — ${x.lab}\n${x.pt}`).join('\n\n———\n\n'));}
+function reviewMsg(name){const n=F('name','my business');return `Hey ${name}! 🙏 Quick favor — I'm growing ${n} and honest reviews make a huge difference. If you've got 60 seconds, would you leave me a quick review? Here's the link: [paste your review link]. Thank you so much — it really means a lot!`;}
+function renderReviews(){
+  const names=[F('rev1',''),F('rev2',''),F('rev3','')].filter(x=>x);
+  const box=$('#o_reviews');
+  if(!names.length){box.innerHTML=`<p class="note" style="margin:6px 0 0">Add 1–3 names above and we'll write each person a ready-to-send review request.</p>`;return;}
+  box.innerHTML=`<div class="out"><span class="dfy">✨ ready to send</span>`+
+    names.map(nm=>`<div class="ad"><div class="lab">To ${nm}</div><div class="pt">${reviewMsg(nm)}</div></div>`).join('')+
+    `</div><button class="btn btn-primary btn-sm" id="cp_rev">Copy all</button>`;
+  $('#cp_rev').onclick=()=>copy(names.map(nm=>`To ${nm}:\n${reviewMsg(nm)}`).join('\n\n———\n\n'));
+}
+function outreach(){const c=F('customer','people who need this'),prod=F('product','what I offer'),sk=F('skillset','what I do');
+  return `Hey [name]! 👋 Looks like we're in the same group. I help ${c} with ${prod} — not pitching you out of nowhere, just like connecting with good people here. If ${sk} is ever on your radar, I'm happy to help. Either way, glad to connect!`;}
+function bio(){const sk=F('skillset','What I do'),c=F('customer','my clients'),prod=F('product','what I offer'),offer=F('offer',''),ph=F('phone','');
+  return `${cap(sk)} for ${c}. I deliver ${prod}.${offer?` ${cap(offer)}.`:''} ${ph?`📞 ${ph}`:'💬 DM me to get started.'}`;}
+
+function renderMarketing(){
+  renderPostsM(); renderReviews();
+  $('#o_outreach').textContent=outreach();
+  $('#o_bio').textContent=bio();
+}
+$('#gen_mp').onclick=()=>{renderPostsM();toast('Fresh posts ✓');};
+$('#cp_out').onclick=()=>copy(outreach());
+$('#cp_bio').onclick=()=>copy(bio());
+// marketing inputs
+['group1','group2','group3','rev1','rev2','rev3','offer'].forEach(f=>{const el=$('#f_'+f);el.value=state.fields[f]||'';
+  el.addEventListener('input',()=>{state.fields[f]=el.value;save();
+    if(f.startsWith('rev'))renderReviews();
+    if(f==='offer'){renderPostsM();$('#o_bio').textContent=bio();}});});
+// setup inputs (lead source + phone)
+['leads','phone'].forEach(f=>{const el=$('#f_'+f);el.value=state.fields[f]||'';
+  el.addEventListener('input',()=>{state.fields[f]=el.value;save();if(f==='phone')renderMarketing();});});
+
+/* ---- Step 2 tasks ---- */
+const TASKS=[
+  {id:'website',icon:'🌍',title:'Create a website with AI',why:'Have Claude build you a beautiful website — based on a site you already love.',
+   act:b=>{
+     b.innerHTML=`<div class="field"><label><span class="dot"></span>Paste a website you love (for inspiration)</label><input id="f_inspo" placeholder="e.g. a competitor or a site whose look you want"></div>
+       <button class="btn btn-primary btn-sm" id="genSite">✨ Build my website prompt</button>
+       <div id="o_site"></div>
+       <p class="note" style="margin-top:10px">Rather drag-and-drop it yourself? <a class="glink" target="_blank" rel="noopener" href="https://carrd.co/">Carrd ↗</a></p>`;
+     const inspo=b.querySelector('#f_inspo'); inspo.value=state.fields.inspo||'';
+     inspo.addEventListener('input',()=>{state.fields.inspo=inspo.value;save();});
+     b.querySelector('#genSite').onclick=()=>{
+       const n=biz(),s=svc(),c=F('customer','my ideal customers'),offer=F('offer',''),ph=F('phone',''),ins=F('inspo','');
+       const p=`You are an expert web designer and copywriter. Build me a complete, beautiful, modern ONE-PAGE website as a single self-contained HTML file (inline CSS, mobile-first; only Google Fonts allowed as an external resource).
+
+ABOUT ME
+• Name / brand: ${n}
+• What I do: ${F('skillset','my skill')}
+• What I sell: ${s}
+• Who it's for: ${c}
+${offer?`• Offer: ${offer}\n`:''}${ph?`• Phone: ${ph}\n`:''}${ins?`\nINSPIRATION\nBase the design, layout and vibe on a site I love: ${ins}\nCapture its feel — but make it original and tailored to me.\n`:''}
+WHAT TO INCLUDE
+• Sticky header: my name + a contact button${ph?` (use tel:${ph})`:''}.
+• Hero: a bold headline, one-line subhead, and a primary call-to-action.
+• What I offer / services.
+• Why work with me (3–4 benefits).
+• A testimonials section (realistic placeholders).
+• A final call-to-action band.
+• Footer with contact info${ph?` and the phone number`:''}.
+
+STYLE
+• Premium and clean: tasteful colors, great typography, generous spacing, subtle hover effects.
+• Confident, benefit-driven copy that speaks directly to ${c}.
+• Fully responsive on phones.
+
+OUTPUT
+Give me ONLY the complete HTML in one code block, ready to copy. No explanation.`;
+       const box=b.querySelector('#o_site');
+       box.innerHTML=`<div class="out" style="white-space:pre-wrap;font-size:13px;max-height:240px;overflow:auto">${p.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
+         <button class="btn btn-primary btn-sm" id="openClaude">📋 Copy + open Claude</button>
+         <button class="btn btn-glass btn-sm" id="copySite">Copy prompt</button>
+         <p class="note"><b>How to use it:</b><br>1. Tap “Copy + open Claude” — we copy this prompt and open Claude for you.<br>2. Paste it into Claude (Cmd/Ctrl + V) and let it build your site.<br>3. Copy the HTML code Claude gives you.<br>4. Paste that code into your website builder inside your CRM (from the CRM step) — and you're live.</p>`;
+       box.querySelector('#copySite').onclick=()=>copy(p);
+       box.querySelector('#openClaude').onclick=()=>{const w=window.open('https://claude.ai/new','_blank');if(!w)location.href='https://claude.ai/new';copy(p);toast('Prompt copied — paste it into Claude');};
+     };
+   }},
+  {id:'crm',icon:'📇',title:'Sign up for a CRM',why:'One place for every lead and customer so none slip through the cracks — and where your website lives.',
+   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://leadminingpros.com/crm6">Get your CRM ↗</a><p class="note">Tracks every lead from first message to paying customer. Your AI website pastes right in here.</p>`;}},
+  {id:'bookcall',icon:'📅',title:'Book a call with Nick',why:'Get personal help dialing in your offer, your numbers, and your marketing plan.',
+   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://calendly.com/lead-mining/executive">Book your call ↗</a><p class="note">Pick a time that works and come ready with your skill, your offer, and your income goal.</p>`;}},
+  {id:'fbpage',icon:'📘',title:'Set up your Facebook business page',why:'Your free storefront — where new customers check you out and message you.',
+   act:b=>{const bio2=`${F('name','Your Name')}\n\n${cap(F('skillset','what I do'))} for ${F('customer','people who need it')}. ${F('product','')?cap(F('product',''))+'. ':''}Message me to get started 👇`;
+     b.innerHTML=`<div class="out" style="white-space:pre-wrap;font-size:14px">${bio2}</div><button class="btn btn-glass btn-sm" id="cp_pg">Copy bio</button><a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://www.facebook.com/pages/creation/">Create Page ↗</a><p class="note">Already have one? Just check this off. Otherwise create it and paste the bio above.</p>`;
+     b.querySelector('#cp_pg').onclick=()=>copy(bio2);}},
+];
+const checkSVG='<svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#1A1505" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const list=$('#setupList');
+TASKS.forEach((t,i)=>{const el=document.createElement('div');el.className='task'+(state.done[t.id]?' done':'');
+  el.style.animationDelay=(i*60)+'ms';
+  el.innerHTML=`<div class="medal">${t.icon}</div><div class="t-main"><div class="t-row"><div class="t-title">${t.title}</div><div class="check">${checkSVG}</div></div><div class="t-why">${t.why}</div><div class="t-act"></div></div>`;
+  list.appendChild(el);t.act(el.querySelector('.t-act'));
+  el.querySelector('.check').addEventListener('click',()=>{state.done[t.id]=!state.done[t.id];
+    el.classList.toggle('done',state.done[t.id]);save();progress();
+    if(state.done[t.id]){toast('Nice — one down 👏');const n=TASKS.filter(x=>state.done[x.id]).length;burst();if(n===TASKS.length)setTimeout(()=>toast('Set up to sell 🎉'),300);}});});
+
+const C=2*Math.PI*17;
+function progress(){const n=TASKS.filter(t=>state.done[t.id]).length,tot=TASKS.length,p=n/tot;
+  $('#ringbar').style.strokeDashoffset=C*(1-p);$('#pct').textContent=Math.round(p*100)+'%';}
+progress();
+
+/* ---- Dashboard ---- */
+function renderDashboard(){
+  const name=F('name','');
+  $('#dashTitle').textContent=name?`${name}'s plan`:'Your Dashboard';
+  const p=num(F('price','')), ideal=num(F('idealIncome','')), iu=(p&&ideal)?Math.ceil(ideal/p):0;
+  const doneN=TASKS.filter(t=>state.done[t.id]).length,totN=TASKS.length,pct=Math.round(doneN/totN*100);
+  let h='';
+  h+=`<div class="card glow"><div class="t-title">Your number</div>`;
+  if(iu){h+=`<p class="note" style="margin:6px 0 10px">To earn <b>${money(ideal)}/month</b> at ${money(p)} per sale:</p>
+    <div class="big"><div><span class="b-lab">Sell this many / month</span><span class="b-val pos">${iu}</span></div><div><span class="b-lab">About / week</span><span class="b-val">${Math.ceil(iu/4.33)}</span></div></div>
+    <button class="btn btn-primary btn-sm" data-go="3" style="margin-top:12px">Go get them →</button>`;}
+  else{h+=`<p class="note" style="margin:6px 0 10px">Add your price + income goal and we'll show you exactly how many sales you need.</p><button class="btn btn-primary btn-sm" data-go="1">Set my numbers →</button>`;}
+  h+=`</div>`;
+  h+=`<div class="stat-row">
+    <div class="stat"><div class="v">${p?money(p):'—'}</div><div class="l">Per sale</div></div>
+    <div class="stat"><div class="v">${iu||'—'}</div><div class="l">Sales / mo</div></div>
+    <div class="stat"><div class="v">${pct}%</div><div class="l">Set up</div></div></div>`;
+  h+=`<div class="card"><div class="t-title" style="margin-bottom:4px">Get ready to sell</div>`;
+  TASKS.forEach(tk=>{const d=!!state.done[tk.id];h+=`<div class="dash-step ${d?'done':''}" data-go="2"><div class="dot2">${d?'✓':''}</div><div class="nm">${tk.icon} ${tk.title}</div><div class="go">›</div></div>`;});
+  h+=`</div>`;
+  h+=`<div class="nav-row"><div class="nav-card" data-go="1"><div class="ic">🎯</div><div class="t">Profile</div></div><div class="nav-card" data-go="2"><div class="ic">🧰</div><div class="t">Set Up</div></div><div class="nav-card" data-go="3"><div class="ic">📣</div><div class="t">Marketing</div></div></div>`;
+  if(typeof cloudOn!=='undefined'&&cloudOn&&user)h+=`<p style="text-align:center;margin-top:18px"><a class="glink" id="logoutLink" style="cursor:pointer">Log out (${user.email||''})</a></p>`;
+  const body=$('#dashBody');body.innerHTML=h;body.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>goTab(+el.dataset.go)));
+  const lo=$('#logoutLink');if(lo)lo.onclick=()=>{if(window.sb)window.sb.auth.signOut().then(()=>{sessionStorage.removeItem('pulled');location.reload();});};
+}
+
+/* ---- Auth + cloud sync (Supabase) ----
+   To turn logins ON: paste your Supabase Project URL + anon public key below.
+   While these are blank the app runs in local-only mode (no login). */
+const SB_URL='https://nttttcmorvsegemynauf.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im50dHR0Y21vcnZzZWdlbXluYXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyODYwMjUsImV4cCI6MjA5Njg2MjAyNX0.0sDowqtIyrc0pooDgBFnSlWA9sdyj0H-ZGLGVElpMKM';
+const cloudOn = !!(SB_URL && SB_KEY && window.supabase);
+let sb=null, user=null, _syncT=null;
+const authEl=$('#auth');
+function showAuth(){authEl.classList.add('show');}
+function hideAuth(){authEl.classList.remove('show');}
+let authMode='login';
+function setMode(m){authMode=m;
+  $('#authTitle').textContent=m==='login'?'Welcome back':'Create your account';
+  $('#authSub').textContent=m==='login'?'Log in to pick up where you left off.':'Sign up to save your work and sync it across all your devices.';
+  $('#authBtn').textContent=m==='login'?'Log in':'Create account';
+  $('#authSwitch').innerHTML=m==='login'?'New here? <a id="authToggle">Create an account</a>':'Already have an account? <a id="authToggle">Log in</a>';
+  $('#authToggle').onclick=()=>setMode(m==='login'?'signup':'login');
+  $('#authErr').textContent='';
+}
+async function doAuth(){
+  if(!sb)return;
+  const email=$('#authEmail').value.trim(), pw=$('#authPass').value;
+  if(!email||!pw){$('#authErr').textContent='Enter your email and a password.';return;}
+  $('#authBtn').textContent='…';$('#authErr').textContent='';
+  try{
+    const res = authMode==='login'
+      ? await sb.auth.signInWithPassword({email,password:pw})
+      : await sb.auth.signUp({email,password:pw});
+    if(res.error){$('#authErr').textContent=res.error.message;$('#authBtn').textContent=(authMode==='login'?'Log in':'Create account');return;}
+    if(!res.data.session){$('#authErr').textContent='Account created! Check your email to confirm, then log in.';setMode('login');return;}
+    user=res.data.session.user; hideAuth(); afterLogin();
+  }catch(e){$('#authErr').textContent='Something went wrong — try again.';$('#authBtn').textContent=(authMode==='login'?'Log in':'Create account');}
+}
+async function afterLogin(){
+  sessionStorage.setItem('pulled','1');
+  try{
+    const {data}=await sb.from('app_state').select('data').eq('user_id',user.id).maybeSingle();
+    if(data&&data.data){localStorage.setItem(KEY,JSON.stringify(data.data));location.reload();return;}
+    cloudSave();
+  }catch(e){}
+}
+if(cloudOn){
+  sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb;
+  cloudSave=function(){if(!user)return;clearTimeout(_syncT);_syncT=setTimeout(()=>{sb.from('app_state').upsert({user_id:user.id,data:state,updated_at:new Date().toISOString()});},800);};
+  $('#authBtn').onclick=doAuth;
+  $('#authPass').addEventListener('keydown',e=>{if(e.key==='Enter')doAuth();});
+  setMode('login');
+  sb.auth.getSession().then(({data})=>{
+    const session=data&&data.session;
+    if(session){user=session.user;hideAuth();renderDashboard();if(!sessionStorage.getItem('pulled'))afterLogin();}
+    else showAuth();
+  });
+}
+
+renderNumbers();
+renderMarketing();
+renderDashboard();
+if(state.tab)goTab(state.tab);
+</script>
+</body>
+</html>
