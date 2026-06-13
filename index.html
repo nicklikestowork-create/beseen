@@ -364,18 +364,18 @@ function renderNumbers(){
 /* ---- Step 3 generators ---- */
 function ctaLine(){const ph=F('phone','');return ph?`📞 Call or text ${ph}`:`💬 DM me “INFO” and I'll send the details.`;}
 function postsM(){
-  const n=F('name','I'), sk=F('skillset','what I do'), prod=F('product','what I offer'), c=F('customer','people who need this'), offer=F('offer',''), cta=ctaLine();
+  const sk=F('skillset','what I do'), prod=F('product','what I offer'), c=F('customer','people who need this'), offer=F('offer',''), cta=ctaLine();
   const P=[
-    ['Offer',`I help ${c} with ${prod}.${offer?` ${cap(offer)}.`:''}\nIf that's you, let's make it happen.\n${cta}`],
-    ['Problem → solution',`Struggling with ${sk}? Most ${c} are — and it quietly costs them.\nThat's exactly what I take off your plate.\n${cta}`],
-    ['Result',`Nothing beats watching ${c} win with ${prod}. That's the whole reason I do this.\nWant results like that?\n${cta}`],
-    ['Why I started',`I got into ${sk} because I was tired of watching ${c} struggle with it.\nNow I help them fix it for good.\n${cta}`],
-    ['Free value',`Quick tip for ${c}: ${sk} only works when it's consistent. No time for that? That's where I come in.\n${cta}`],
-    ['Myth-bust',`Myth: ${c} have to figure ${sk} out alone.\nTruth: you don't. ${cap(prod)} makes it simple.\n${cta}`],
-    ['Engagement',`Question for ${c}: what's your #1 struggle with ${sk}? Drop it below 👇\nI'll reply with a tip — and if you'd rather have it handled, ${cta}`],
-    ['Urgency',`Taking on a few new clients this month for ${prod}.${offer?` ${cap(offer)}.`:''}\nSpots are limited — ${cta}`],
-    ['Proof',`"Honestly the best decision I made." That's what ${c} tell me after we work together on ${prod}.\nReady for the same?\n${cta}`],
-    ['Direct CTA',`If you're ${c} and you want ${prod} done right — this is your sign.\n${cta}`],
+    ['Callout',`${cap(c)} — ${sk} shouldn't be eating your time.\n\nYou're brilliant at what you actually do. Doing ${sk} on top of it? That's a whole second job.\n\nLet me take it off your plate. ${cap(prod)} — you stay in your zone, I handle the rest.\n\n${cta}`],
+    ['Big promise',`What if ${sk} just… handled itself?\n\nNo stress. No learning curve. No "I'll get to it next week."\n\nThat's exactly what ${prod} does for ${c}. Done for you, done right.\n\n${cta}`],
+    ['Contrarian',`Unpopular opinion: ${c} don't need to work harder at ${sk}.\n\nYou need someone who already knows it cold — so it gets done right the first time, not the fifth.\n\nThat's what I'm here for.\n\n${cta}`],
+    ['Why I started',`I started doing ${sk} because I kept watching ${c} struggle with it.\n\nNot because they weren't capable — because nobody has time to do everything well.\n\nIf that's you, let's fix it. ${cap(prod)}, handled.\n\n${cta}`],
+    ['Cost of waiting',`Every week ${sk} sits on the back burner, it quietly costs you.\n\nLost time. Lost momentum. Customers you'll never even know slipped by.\n\n${cap(prod)} takes it off your plate — for less than you'd guess.\n\n${cta}`],
+    ['Free value',`Quick truth for ${c}:\n\n${cap(sk)} doesn't have to be perfect — it has to be consistent. That's where most people fall off.\n\nNo time to stay consistent? That's the exact gap I fill.\n\n${cta}`],
+    ['Proof',`"Honestly, best decision I've made for my business."\n\nThat's what ${c} say after handing ${sk} to me.\n\n${cap(prod)} — done right, every single time. Want that?\n\n${cta}`],
+    ['Myth-bust',`Myth: ${c} have to figure ${sk} out on their own.\n\nTruth: you really don't. I handle it, you get the results — without the headache or the guesswork.\n\n${cta}`],
+    ['Offer',`${offer?cap(offer)+" — this week only.":"I'm opening a few spots this month for new "+c+"."}\n\n${cap(prod)}, done for you. ${offer?"Grab yours before it fills.":"I keep the roster small so everyone gets my best — when it's full, it's full."}\n\n${cta}`],
+    ['Direct CTA',`If ${sk} keeps landing on your to-do list and never getting done — consider this your sign.\n\nI'll handle ${prod} so you can get back to what you're best at.\n\n${cta}`],
   ];
   return P.map(x=>({lab:x[0],pt:x[1]}));
 }
@@ -394,9 +394,9 @@ function renderReviews(){
   $('#cp_rev').onclick=()=>copy(names.map(nm=>`To ${nm}:\n${reviewMsg(nm)}`).join('\n\n———\n\n'));
 }
 function outreach(){const c=F('customer','people who need this'),prod=F('product','what I offer'),sk=F('skillset','what I do');
-  return `Hey [name]! 👋 Looks like we're in the same group. I help ${c} with ${prod} — not pitching you out of nowhere, just like connecting with good people here. If ${sk} is ever on your radar, I'm happy to help. Either way, glad to connect!`;}
-function bio(){const sk=F('skillset','What I do'),c=F('customer','my clients'),prod=F('product','what I offer'),offer=F('offer',''),ph=F('phone','');
-  return `${cap(sk)} for ${c}. I deliver ${prod}.${offer?` ${cap(offer)}.`:''} ${ph?`📞 ${ph}`:'💬 DM me to get started.'}`;}
+  return `Hey [name]! 👋 Saw we're in the same group — figured I'd say hi.\n\nI help ${c} with ${prod}. Not here to pitch you, promise 🙂 — but if ${sk} ever turns into a headache, that's my world and I'd be glad to help.\n\nEither way, good to be connected!`;}
+function bio(){const sk=F('skillset','what I do'),c=F('customer','my clients'),prod=F('product','what I offer'),offer=F('offer',''),ph=F('phone','');
+  return `I help ${c} with ${prod}. ${cap(sk)}, done for you — so you can focus on what you do best.${offer?` ${cap(offer)}.`:''} ${ph?`📞 ${ph}`:'💬 DM me to get started.'}`;}
 
 function renderMarketing(){
   renderPostsM(); renderReviews();
