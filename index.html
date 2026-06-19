@@ -295,11 +295,12 @@
     <span class="logo"><span class="mark">📣</span><span>Fuel Your Freedom <span class="g">Marketer</span></span></span>
     <h2 id="authTitle">Welcome to <span class="g">YOUR FUTURE</span></h2>
     <p class="sub" id="authSub">Sign up for free to get started!</p>
-    <div class="field"><label><span class="dot"></span>Email</label><input id="authEmail" type="email" placeholder="you@email.com" autocomplete="email"></div>
+    <div class="field" id="authEmailWrap"><label><span class="dot"></span>Email</label><input id="authEmail" type="email" placeholder="you@email.com" autocomplete="email"></div>
     <div class="field"><label><span class="dot"></span>Password</label><input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="btn btn-primary" id="authBtn">Create my free account</button>
     <div class="err" id="authErr"></div>
     <div class="switch" id="authSwitch">Already have an account? <a id="authToggle">Log in</a></div>
+    <div class="switch" id="authForgotWrap" style="display:none;margin-top:6px"><a id="authForgot" style="cursor:pointer;color:var(--sub)">Forgot your password?</a></div>
   </div>
 </div>
 
@@ -517,26 +518,50 @@ function showAuth(){authEl.classList.add('show');}
 function hideAuth(){authEl.classList.remove('show');}
 let authMode='login';
 function setMode(m){authMode=m;
-  $('#authTitle').innerHTML=m==='login'?'Welcome <span class="g">back</span>':'Welcome to <span class="g">YOUR FUTURE</span>';
-  $('#authSub').textContent=m==='login'?'Log in to pick up where you left off.':'Sign up for free to get started!';
-  $('#authBtn').textContent=m==='login'?'Log in':'Create my free account';
+  const rec=m==='recovery';
+  $('#authEmailWrap').style.display=rec?'none':'';
+  $('#authForgotWrap').style.display=m==='login'?'':'none';
+  $('#authSwitch').style.display=rec?'none':'';
+  $('#authPass').setAttribute('placeholder',rec?'new password':'••••••••');
+  $('#authTitle').innerHTML=rec?'Set a new <span class="g">password</span>':(m==='login'?'Welcome <span class="g">back</span>':'Welcome to <span class="g">YOUR FUTURE</span>');
+  $('#authSub').textContent=rec?'Enter a new password to finish resetting.':(m==='login'?'Log in to pick up where you left off.':'Sign up for free to get started!');
+  $('#authBtn').textContent=rec?'Update password':(m==='login'?'Log in':'Create my free account');
   $('#authSwitch').innerHTML=m==='login'?'New here? <a id="authToggle">Create an account</a>':'Already have an account? <a id="authToggle">Log in</a>';
-  $('#authToggle').onclick=()=>setMode(m==='login'?'signup':'login');
-  $('#authErr').textContent='';
+  const tog=$('#authToggle'); if(tog)tog.onclick=()=>setMode(m==='login'?'signup':'login');
+  $('#authErr').style.color='';$('#authErr').textContent='';
 }
 async function doAuth(){
   if(!sb)return;
+  if(authMode==='recovery'){
+    const np=$('#authPass').value;
+    if(np.length<6){$('#authErr').style.color='';$('#authErr').textContent='Use at least 6 characters.';return;}
+    $('#authBtn').textContent='…';$('#authErr').style.color='';$('#authErr').textContent='';
+    const r=await sb.auth.updateUser({password:np});
+    if(r.error){$('#authErr').textContent=r.error.message;$('#authBtn').textContent='Update password';return;}
+    toast('Password updated ✓');const s=await sb.auth.getSession();user=s.data.session&&s.data.session.user;
+    if(location.hash)history.replaceState(null,'',location.pathname);
+    hideAuth();if(user){sessionStorage.removeItem('pulled');afterLogin();}return;
+  }
   const email=$('#authEmail').value.trim(), pw=$('#authPass').value;
-  if(!email||!pw){$('#authErr').textContent='Enter your email and a password.';return;}
-  $('#authBtn').textContent='…';$('#authErr').textContent='';
+  if(!email||!pw){$('#authErr').style.color='';$('#authErr').textContent='Enter your email and a password.';return;}
+  $('#authBtn').textContent='…';$('#authErr').style.color='';$('#authErr').textContent='';
   try{
     const res = authMode==='login'
       ? await sb.auth.signInWithPassword({email,password:pw})
       : await sb.auth.signUp({email,password:pw});
-    if(res.error){$('#authErr').textContent=res.error.message;$('#authBtn').textContent=(authMode==='login'?'Log in':'Create account');return;}
+    if(res.error){$('#authErr').textContent=res.error.message;$('#authBtn').textContent=(authMode==='login'?'Log in':'Create my free account');return;}
     if(!res.data.session){$('#authErr').textContent='Account created! Check your email to confirm, then log in.';setMode('login');return;}
     user=res.data.session.user; hideAuth(); afterLogin();
-  }catch(e){$('#authErr').textContent='Something went wrong — try again.';$('#authBtn').textContent=(authMode==='login'?'Log in':'Create account');}
+  }catch(e){$('#authErr').textContent='Something went wrong — try again.';$('#authBtn').textContent=(authMode==='login'?'Log in':'Create my free account');}
+}
+async function doReset(){
+  if(!sb)return;
+  const email=$('#authEmail').value.trim();
+  if(!email){$('#authErr').style.color='';$('#authErr').textContent='Type your email above first, then tap reset.';return;}
+  $('#authErr').style.color='';$('#authErr').textContent='Sending…';
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.href.split('#')[0]});
+  if(error){$('#authErr').textContent=error.message;return;}
+  $('#authErr').style.color='var(--ok)';$('#authErr').textContent='Check your email for a reset link ✓';
 }
 async function afterLogin(){
   sessionStorage.setItem('pulled','1');
@@ -550,9 +575,12 @@ if(cloudOn){
   sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb;
   cloudSave=function(){if(!user)return;clearTimeout(_syncT);_syncT=setTimeout(()=>{sb.from('app_state').upsert({user_id:user.id,data:state,updated_at:new Date().toISOString()});},800);};
   $('#authBtn').onclick=doAuth;
+  $('#authForgot').onclick=doReset;
   $('#authPass').addEventListener('keydown',e=>{if(e.key==='Enter')doAuth();});
   setMode('signup');
-  sb.auth.getSession().then(({data})=>{
+  sb.auth.onAuthStateChange((event)=>{if(event==='PASSWORD_RECOVERY'){showAuth();setMode('recovery');}});
+  if(location.hash.includes('type=recovery')){showAuth();setMode('recovery');}
+  else sb.auth.getSession().then(({data})=>{
     const session=data&&data.session;
     if(session){user=session.user;hideAuth();renderDashboard();if(!sessionStorage.getItem('pulled'))afterLogin();}
     else showAuth();
