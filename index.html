@@ -520,7 +520,7 @@ let authMode='login';
 function setMode(m){authMode=m;
   const rec=m==='recovery';
   $('#authEmailWrap').style.display=rec?'none':'';
-  $('#authForgotWrap').style.display=m==='login'?'':'none';
+  $('#authForgotWrap').style.display=rec?'none':'';
   $('#authSwitch').style.display=rec?'none':'';
   $('#authPass').setAttribute('placeholder',rec?'new password':'••••••••');
   $('#authTitle').innerHTML=rec?'Set a new <span class="g">password</span>':(m==='login'?'Welcome <span class="g">back</span>':'Welcome to <span class="g">YOUR FUTURE</span>');
