@@ -7,7 +7,7 @@
 <title>Fuel Your Freedom Marketer — sell your skill, starting today</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
@@ -160,6 +160,72 @@
   .auth .err{color:#FF9A9A;font-size:13px;text-align:center;min-height:18px;margin-top:10px;line-height:1.4}
   .auth .switch{text-align:center;font-size:13px;color:var(--sub);margin-top:14px}
   .auth .switch a{color:var(--coral);font-weight:700;cursor:pointer}
+  /* ===== Board game ===== */
+  canvas{image-rendering:pixelated;image-rendering:crisp-edges}
+  .pix{font-family:"Press Start 2P",monospace}
+  .game{padding:4px 0 10px}
+  .phasebar{display:flex;gap:6px;margin:4px 0 16px}
+  .phase{flex:1;border:2px solid var(--cardline);border-radius:10px;padding:9px 4px;text-align:center;
+    font-family:"Press Start 2P",monospace;font-size:7.5px;line-height:1.5;color:var(--sub);background:rgba(255,255,255,.03)}
+  .phase .pn{display:block;font-size:6.5px;color:var(--coral);margin-bottom:4px}
+  .phase.on{border-color:var(--coral);color:var(--ink);background:var(--grad-soft);box-shadow:0 0 0 1px var(--coral) inset}
+  .herostrip{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--cardline);
+    border-radius:14px;padding:10px 12px;margin-bottom:8px}
+  .herostrip canvas{flex:0 0 auto;background:rgba(0,0,0,.25);border-radius:8px}
+  .hs-info{flex:1;min-width:0}
+  .hs-name{font-family:"Press Start 2P",monospace;font-size:11px;letter-spacing:.5px}
+  .hs-sub{font-size:12px;color:var(--sub);margin-top:5px}
+  .pixbtn{font-family:"Press Start 2P",monospace;font-size:9px;line-height:1.4;cursor:pointer;border:2px solid var(--coral);
+    background:var(--grad);color:#1A1505;padding:9px 11px;border-radius:9px;box-shadow:0 4px 0 #9a6a16;transition:.1s}
+  .pixbtn:active{transform:translateY(3px);box-shadow:0 1px 0 #9a6a16}
+  .pixbtn.ghost{background:rgba(255,255,255,.06);color:var(--ink);border-color:var(--cardline);box-shadow:0 4px 0 rgba(0,0,0,.4)}
+  .pixbtn.big{display:block;width:100%;text-align:center;font-size:11px;padding:13px;margin-top:14px}
+  .board{position:relative;display:flex;flex-direction:column;gap:0;padding:8px 0}
+  .node{position:relative;display:flex;align-items:center;gap:12px;padding:7px 10px;margin:0 auto;width:100%;max-width:340px;cursor:pointer}
+  .node:nth-child(even){flex-direction:row-reverse;text-align:right}
+  .node:not(:last-child)::after{content:"";position:absolute;left:50%;bottom:-2px;width:3px;height:18px;
+    background:repeating-linear-gradient(var(--cardline) 0 4px,transparent 4px 8px);transform:translateX(-50%)}
+  .ntoken{width:46px;height:46px;flex:0 0 auto;border-radius:12px;display:grid;place-items:center;font-size:22px;
+    border:2px solid var(--cardline);background:rgba(255,255,255,.04);transition:.15s}
+  .nlabel{font-size:13px;font-weight:700;color:var(--sub);line-height:1.3}
+  .node.done .ntoken{background:var(--grad);border-color:var(--coral);color:#1A1505;box-shadow:0 0 14px rgba(232,194,107,.5)}
+  .node.done .nlabel{color:var(--ink)}
+  .node.current .ntoken{border-color:var(--coral);background:var(--grad-soft);animation:pulse 1.3s ease-in-out infinite}
+  .node.current .nlabel{color:var(--ink)}
+  .node.locked{opacity:.4;cursor:not-allowed}
+  .node .avhere{position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:none;pointer-events:none}
+  .node.boss .ntoken{width:60px;height:60px;font-size:30px;border-color:#C0392B;background:rgba(192,57,43,.18)}
+  .node.boss.current .ntoken{animation:pulse 1s ease-in-out infinite;box-shadow:0 0 18px rgba(192,57,43,.6)}
+  .node.boss .nlabel{color:#FF8A7A;font-family:"Press Start 2P",monospace;font-size:9px;line-height:1.5}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+  /* creator + cutscene overlays */
+  .creator,.cut{position:fixed;inset:0;z-index:110;background:rgba(8,8,9,.96);backdrop-filter:blur(8px);
+    display:none;align-items:center;justify-content:center;padding:22px}
+  .creator.show,.cut.show{display:flex}
+  .creator-card,.cut-card{width:100%;max-width:360px;background:var(--card);border:2px solid var(--cardline);
+    border-radius:18px;padding:22px 18px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.6);animation:rise .4s both}
+  .creator-card h2,.cut-card h2{font-family:"Press Start 2P",monospace;font-size:14px;line-height:1.5;margin:0 0 14px}
+  #cvPrev,#cutHero,#cutMon{background:rgba(0,0,0,.3);border-radius:10px;border:2px solid var(--cardline)}
+  .genrow{display:flex;gap:8px;justify-content:center;margin:14px 0}
+  .genrow .pixbtn{flex:1}
+  .genrow .pixbtn:not(.on){background:rgba(255,255,255,.06);color:var(--ink);border-color:var(--cardline);box-shadow:0 4px 0 rgba(0,0,0,.4)}
+  .palrow{display:flex;align-items:center;gap:8px;margin:8px 0;text-align:left}
+  .pall{font-family:"Press Start 2P",monospace;font-size:7px;color:var(--sub);width:42px;flex:0 0 auto}
+  .pals{display:flex;gap:6px;flex-wrap:wrap}
+  .sw{width:26px;height:26px;border-radius:7px;border:2px solid rgba(255,255,255,.25);cursor:pointer;padding:0}
+  .sw:active{transform:scale(.9)}
+  .cut-scene{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:14px}
+  .cut-vs{font-size:24px;animation:vsflash .4s ease-in-out 3}
+  @keyframes vsflash{50%{transform:scale(1.5) rotate(-12deg)}}
+  #cutHero{animation:herobob 1s ease-in-out infinite}
+  @keyframes herobob{50%{transform:translateY(-4px)}}
+  .cmon{animation:monfall 1.1s ease-in forwards}
+  @keyframes monfall{0%{transform:translateX(0)}20%{transform:translateX(8px)}40%{transform:translateX(-4px)}100%{transform:translateY(20px) rotate(85deg);opacity:.25}}
+  .cut-victory{font-family:"Press Start 2P",monospace;font-size:22px;line-height:1.4;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    animation:vicpop .5s cubic-bezier(.2,1.6,.4,1) both;animation-delay:.6s;opacity:0}
+  @keyframes vicpop{to{opacity:1}0%{transform:scale(.3)}}
+  .cut-sub{font-size:13px;color:var(--sub);margin-top:8px}
   .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(24px);
     background:var(--grad);color:#1A1505;padding:11px 20px;border-radius:99px;font-size:13.5px;font-weight:700;
     opacity:0;pointer-events:none;transition:.3s cubic-bezier(.2,.7,.2,1);z-index:60;box-shadow:0 12px 30px rgba(232,194,107,.45)}
@@ -183,7 +249,7 @@
       </div>
     </div>
     <div class="tabs">
-      <button class="tab active" data-tab="0"><span class="n">HOME</span>Dashboard</button>
+      <button class="tab active" data-tab="0"><span class="n">HOME</span>Map</button>
       <button class="tab" data-tab="1"><span class="n">STEP 1</span>Your Profile</button>
       <button class="tab" data-tab="2"><span class="n">STEP 2</span>Your Checklist</button>
       <button class="tab" data-tab="3"><span class="n">STEP 3</span>Marketing</button>
@@ -285,6 +351,15 @@
       <p class="note" style="margin:2px 0 10px">For your Facebook page, profile, or intro post.</p>
       <div class="out" id="o_bio" style="white-space:pre-wrap;font-size:14px"></div>
       <button class="btn btn-primary btn-sm" id="cp_bio">Copy bio</button>
+    </div>
+
+    <div class="card">
+      <span class="dfy">✨ DONE FOR YOU</span>
+      <div class="t-title">Turn reviews into a win-win</div>
+      <p class="note" style="margin:2px 0 12px">Reward customers for leaving a review — they win, your reputation wins. Pick what you'll give.</p>
+      <div class="field"><label><span class="dot"></span>Your review reward</label><input id="f_reward" placeholder="e.g. 10% off their next service, or a free add-on"></div>
+      <div class="out" id="o_reward" style="white-space:pre-wrap;font-size:14px"></div>
+      <button class="btn btn-primary btn-sm" id="cp_reward">Copy message</button>
     </div>
   </section>
 
@@ -399,18 +474,23 @@ function outreach(){const c=F('customer','people who need this'),prod=F('product
 function bio(){const sk=F('skillset','what I do'),c=F('customer','my clients'),prod=F('product','what I offer'),offer=F('offer',''),ph=F('phone','');
   return `I help ${c} with ${prod}. ${cap(sk)}, done for you — so you can focus on what you do best.${offer?` ${cap(offer)}.`:''} ${ph?`📞 ${ph}`:'💬 DM me to get started.'}`;}
 
+function rewardMsg(){const n=F('name','my business'),reward=F('reward','a special thank-you');
+  return `Loved working together? 🙏\n\nLeave ${n} a quick review and I'll send you ${reward} as a thank-you.\n\n1. Drop your review here: [paste your review link]\n2. Message me "DONE"\n3. Your reward is yours 🎉\n\nReal win-win — your honest feedback helps me, and you get rewarded for 60 seconds of your time.`;}
 function renderMarketing(){
   renderPostsM(); renderReviews();
   $('#o_outreach').textContent=outreach();
   $('#o_bio').textContent=bio();
+  $('#o_reward').textContent=rewardMsg();
 }
 $('#gen_mp').onclick=()=>{renderPostsM();toast('Fresh posts ✓');};
 $('#cp_out').onclick=()=>copy(outreach());
 $('#cp_bio').onclick=()=>copy(bio());
+$('#cp_reward').onclick=()=>copy(rewardMsg());
 // marketing inputs
-['group1','group2','group3','rev1','rev2','rev3','offer'].forEach(f=>{const el=$('#f_'+f);el.value=state.fields[f]||'';
+['group1','group2','group3','rev1','rev2','rev3','offer','reward'].forEach(f=>{const el=$('#f_'+f);el.value=state.fields[f]||'';
   el.addEventListener('input',()=>{state.fields[f]=el.value;save();
     if(f.startsWith('rev'))renderReviews();
+    if(f==='reward')$('#o_reward').textContent=rewardMsg();
     if(f==='offer'){renderPostsM();$('#o_bio').textContent=bio();}});});
 // setup inputs (lead source + phone)
 ['leads','phone'].forEach(f=>{const el=$('#f_'+f);el.value=state.fields[f]||'';
@@ -422,6 +502,8 @@ const TASKS=[
    act:b=>{const bio2=`${F('name','Your Name')}\n\n${cap(F('skillset','what I do'))} for ${F('customer','people who need it')}. ${F('product','')?cap(F('product',''))+'. ':''}Message me to get started 👇`;
      b.innerHTML=`<div class="out" style="white-space:pre-wrap;font-size:14px">${bio2}</div><button class="btn btn-glass btn-sm" id="cp_pg">Copy bio</button><a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://www.facebook.com/pages/creation/">Create Page ↗</a><p class="note">Already have one? Just check this off. Otherwise create it and paste the bio above.</p>`;
      b.querySelector('#cp_pg').onclick=()=>copy(bio2);}},
+  {id:'gmb',icon:'📍',title:'Create Google My Business listing',why:'Show up on Google Maps & Search when locals look for what you do — free, and a top lead source.',
+   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://business.google.com/create">Create listing ↗</a><p class="note">Add your hours, area, photos, and phone — then verify it. Ask every happy customer for a review.</p>`;}},
   {id:'reviews5',icon:'⭐',title:'Ask 5 friends to leave reviews',why:'Social proof sells. A handful of reviews makes you look established from day one.',
    act:b=>{const msg=`Hey! 🙏 Quick favor — I'm getting ${F('name','my business')} off the ground and honest reviews make a huge difference. If you've got 60 seconds, would you leave me a quick review? Here's the link: [paste your review link]. Thank you so much — it really means a lot!`;
      b.innerHTML=`<div class="out" style="white-space:pre-wrap;font-size:14px">${msg}</div><button class="btn btn-primary btn-sm" id="cp_rev5">Copy message</button><p class="note">Send this to 5 friends or past customers. Swap in your Google or Facebook review link where it says [paste your review link].</p>`;
@@ -473,37 +555,91 @@ TASKS.forEach((t,i)=>{const el=document.createElement('div');el.className='task'
   list.appendChild(el);t.act(el.querySelector('.t-act'));
   el.querySelector('.check').addEventListener('click',()=>{state.done[t.id]=!state.done[t.id];
     el.classList.toggle('done',state.done[t.id]);save();progress();
-    if(state.done[t.id]){toast('Nice — one down 👏');const n=TASKS.filter(x=>state.done[x.id]).length;burst();if(n===TASKS.length)setTimeout(()=>toast('Set up to sell 🎉'),300);}});});
+    if(state.done[t.id]){ if(TASKS.every(x=>state.done[x.id])) bossCutscene(); else milestoneCutscene(t.title,i); }});});
 
 const C=2*Math.PI*17;
 function progress(){const n=TASKS.filter(t=>state.done[t.id]).length,tot=TASKS.length,p=n/tot;
   $('#ringbar').style.strokeDashoffset=C*(1-p);$('#pct').textContent=Math.round(p*100)+'%';}
 progress();
 
-/* ---- Dashboard ---- */
+/* ---- Board game (home) ---- */
+function ensureAvatar(){ if(!state.avatar) state.avatar={gender:'male',skin:'#E8B98A',hair:'#4A2C12',shirt:'#FF6B5B',pants:'#3A3550'}; }
+function apx(ctx,x,y,w,hh,c,s){ctx.fillStyle=c;ctx.fillRect(Math.round(x*s),Math.round(y*s),Math.ceil(w*s),Math.ceil(hh*s));}
+function drawAvatarTo(cv,av,s){ if(!cv)return; const ctx=cv.getContext('2d'); ctx.imageSmoothingEnabled=false; ctx.clearRect(0,0,cv.width,cv.height);
+  const sk=av.skin,ha=av.hair,sh=av.shirt,pa=av.pants,sho='#2a2320',eye='#15110a';
+  apx(ctx,6,12,2,3,pa,s);apx(ctx,8,12,2,3,pa,s); apx(ctx,6,15,2,1,sho,s);apx(ctx,8,15,2,1,sho,s);
+  apx(ctx,5,8,6,4,sh,s); apx(ctx,4,8,1,3,sk,s);apx(ctx,11,8,1,3,sk,s);
+  apx(ctx,5,3,6,5,sk,s);
+  apx(ctx,5,2,6,1,ha,s);apx(ctx,5,2,1,2,ha,s);apx(ctx,10,2,1,2,ha,s);
+  if(av.gender==='female'){apx(ctx,4,3,1,6,ha,s);apx(ctx,11,3,1,6,ha,s);}
+  apx(ctx,6,5,1,1,eye,s);apx(ctx,9,5,1,1,eye,s);
+}
+function drawMonster(cv,type,s){const ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,cv.width,cv.height);
+  const P=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(Math.round(x*s),Math.round(y*s),Math.ceil(w*s),Math.ceil(h*s));};
+  if(type==='dragon'){const b='#C0392B',d='#7B241C',ho='#F0D27A';
+    P(3,4,10,8,b);P(2,3,2,2,d);P(12,3,2,2,d);P(1,2,2,2,ho);P(13,2,2,2,ho);
+    P(0,6,3,4,d);P(13,6,3,4,d);P(5,6,2,2,'#fff');P(9,6,2,2,'#fff');P(5,6,1,1,'#000');P(9,6,1,1,'#000');P(5,10,6,1,d);
+  } else { const c=type==='slime'?'#5FBF8F':type==='bat'?'#6B5BAA':type==='goblin'?'#7FA84A':'#9AA0AA';
+    P(4,6,8,6,c);P(3,8,1,3,c);P(12,8,1,3,c);P(5,8,2,2,'#fff');P(9,8,2,2,'#fff');P(6,9,1,1,'#000');P(10,9,1,1,'#000');
+    if(type==='bat'){P(1,5,3,3,'#3a3550');P(12,5,3,3,'#3a3550');}
+    if(type==='goblin'){P(3,4,2,2,c);P(11,4,2,2,c);}
+  }
+}
+const MONS=['slime','goblin','bat','goblin','slime','bat','goblin','slime'];
 function renderDashboard(){
-  const name=F('name','');
-  $('#dashTitle').textContent=name?`${name}'s plan`:'Your Dashboard';
-  const p=num(F('price','')), ideal=num(F('idealIncome','')), iu=(p&&ideal)?Math.ceil(ideal/p):0;
-  const doneN=TASKS.filter(t=>state.done[t.id]).length,totN=TASKS.length,pct=Math.round(doneN/totN*100);
-  let h='';
-  h+=`<div class="card glow"><div class="t-title">Your Profile</div>`;
-  if(iu){h+=`<p class="note" style="margin:6px 0 10px">To earn <b>${money(ideal)}/month</b> at ${money(p)} per sale:</p>
-    <div class="big"><div><span class="b-lab">Sell this many / month</span><span class="b-val pos">${iu}</span></div><div><span class="b-lab">About / week</span><span class="b-val">${Math.ceil(iu/4.33)}</span></div></div>
-    <button class="btn btn-primary btn-sm" data-go="3" style="margin-top:12px">Go get them →</button>`;}
-  else{h+=`<p class="note" style="margin:6px 0 10px">Add your price + income goal and we'll show you exactly how many sales you need.</p><button class="btn btn-primary btn-sm" data-go="1">Set up my profile →</button>`;}
-  h+=`</div>`;
-  h+=`<div class="stat-row">
-    <div class="stat"><div class="v">${p?money(p):'—'}</div><div class="l">Per sale</div></div>
-    <div class="stat"><div class="v">${iu||'—'}</div><div class="l">Sales / mo</div></div>
-    <div class="stat"><div class="v">${pct}%</div><div class="l">Set up</div></div></div>`;
-  h+=`<div class="card"><div class="t-title" style="margin-bottom:4px">Get ready to sell</div>`;
-  TASKS.forEach(tk=>{const d=!!state.done[tk.id];h+=`<div class="dash-step ${d?'done':''}" data-go="2"><div class="dot2">${d?'✓':''}</div><div class="nm">${tk.icon} ${tk.title}</div><div class="go">›</div></div>`;});
-  h+=`</div>`;
-  h+=`<div class="nav-row"><div class="nav-card" data-go="1"><div class="ic">🎯</div><div class="t">Profile</div></div><div class="nav-card" data-go="2"><div class="ic">✅</div><div class="t">Checklist</div></div><div class="nav-card" data-go="3"><div class="ic">📣</div><div class="t">Marketing</div></div></div>`;
-  if(typeof cloudOn!=='undefined'&&cloudOn&&user)h+=`<p style="text-align:center;margin-top:18px"><a class="glink" id="logoutLink" style="cursor:pointer">Log out (${user.email||''})</a></p>`;
-  const body=$('#dashBody');body.innerHTML=h;body.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>goTab(+el.dataset.go)));
-  const lo=$('#logoutLink');if(lo)lo.onclick=()=>{if(window.sb)window.sb.auth.signOut().then(()=>{sessionStorage.removeItem('pulled');location.reload();});};
+  ensureAvatar();
+  $('#dashTitle').textContent='The Foundation';
+  $('#dashSub').textContent='Walk the path, clear each milestone, and defeat the boss.';
+  const doneN=TASKS.filter(t=>state.done[t.id]).length, totN=TASKS.length, pct=Math.round(doneN/totN*100);
+  const curIdx=TASKS.findIndex(t=>!state.done[t.id]); const allDone=curIdx===-1;
+  let h=`<div class="game">`;
+  h+=`<div class="phasebar"><div class="phase on"><span class="pn">PHASE 1</span>FOUNDATION</div><div class="phase"><span class="pn">PHASE 2</span>MOMENTUM 🔒</div><div class="phase"><span class="pn">PHASE 3</span>MASTERY 🔒</div></div>`;
+  h+=`<div class="herostrip"><canvas id="avMini" width="48" height="48"></canvas><div class="hs-info"><div class="hs-name">${F('name','Your Hero')}</div><div class="hs-sub">${doneN}/${totN} milestones cleared · ${pct}%</div></div><button class="pixbtn ghost" id="btnCustom">Customize</button></div>`;
+  h+=`<div class="board">`;
+  TASKS.forEach((t,i)=>{const done=!!state.done[t.id],current=(i===curIdx);
+    const cls=done?'node done':(current?'node current':((i<curIdx||allDone)?'node':'node locked'));
+    h+=`<div class="${cls}" data-node="${i}"><div class="ntoken">${done?'★':t.icon}</div><div class="nlabel">${t.title}</div>${current?'<canvas class="avhere" width="40" height="40"></canvas>':''}</div>`;});
+  h+=`<div class="node boss ${allDone?'current':'locked'}" data-node="boss"><div class="ntoken">🐉</div><div class="nlabel">BOSS:<br>THE DOUBT DRAGON</div></div>`;
+  h+=`</div></div>`;
+  const body=$('#dashBody'); body.innerHTML=h;
+  drawAvatarTo($('#avMini'),state.avatar,3);
+  const ah=document.querySelector('.avhere'); if(ah)drawAvatarTo(ah,state.avatar,2.5);
+  body.querySelectorAll('[data-node]').forEach(el=>el.addEventListener('click',()=>{const nd=el.dataset.node;
+    if(nd==='boss'){ allDone?bossCutscene():toast('Clear every milestone to face the boss!'); return; }
+    if(el.classList.contains('locked')){toast('Finish the milestone before this one first.');return;}
+    goTab(2);}));
+  $('#btnCustom').onclick=openCreator;
+  if(typeof cloudOn!=='undefined'&&cloudOn&&user){body.insertAdjacentHTML('beforeend',`<p style="text-align:center;margin-top:18px"><a class="glink" id="logoutLink" style="cursor:pointer">Log out</a></p>`);const lo=$('#logoutLink');if(lo)lo.onclick=()=>{if(window.sb)window.sb.auth.signOut().then(()=>{sessionStorage.removeItem('pulled');location.reload();});};}
+  if(!state.avatarCreated)setTimeout(openCreator,250);
+}
+function openCreator(){ ensureAvatar(); const av=Object.assign({},state.avatar);
+  const skins=['#F2CBA0','#E8B98A','#C68642','#8D5524','#5C3A21'],hairs=['#15110a','#4A2C12','#8B5A2B','#C99A3B','#A03030','#DADADA'],shirts=['#FF6B5B','#5B6BFF','#34D399','#F0D27A','#FF5FA2','#ffffff','#15110a'],pants=['#3A3550','#222','#5C4030','#2E5B8E','#777'];
+  const wrap=document.createElement('div');wrap.className='creator show';
+  const pal=(name,arr,key)=>`<div class="palrow"><span class="pall">${name}</span><div class="pals">`+arr.map(c=>`<button class="sw" data-key="${key}" data-c="${c}" style="background:${c}"></button>`).join('')+`</div></div>`;
+  wrap.innerHTML=`<div class="creator-card"><h2>Create<br>your hero</h2><canvas id="cvPrev" width="96" height="96"></canvas><div class="genrow"><button class="pixbtn" data-g="male">♂ MALE</button><button class="pixbtn" data-g="female">♀ FEMALE</button></div>${pal('Skin',skins,'skin')}${pal('Hair',hairs,'hair')}${pal('Shirt',shirts,'shirt')}${pal('Pants',pants,'pants')}<button class="pixbtn big" id="saveAv">Start the adventure →</button></div>`;
+  document.body.appendChild(wrap);
+  const prev=()=>drawAvatarTo(wrap.querySelector('#cvPrev'),av,6);
+  const markG=()=>wrap.querySelectorAll('[data-g]').forEach(b=>b.classList.toggle('on',b.dataset.g===av.gender));
+  prev();markG();
+  wrap.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{av.gender=b.dataset.g;prev();markG();});
+  wrap.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{av[b.dataset.key]=b.dataset.c;prev();});
+  wrap.querySelector('#saveAv').onclick=()=>{state.avatar=av;state.avatarCreated=true;save();wrap.remove();renderDashboard();toast('Hero ready! ⚔️');};
+}
+function milestoneCutscene(title,idx){ ensureAvatar(); const type=MONS[idx%MONS.length];
+  const wrap=document.createElement('div');wrap.className='cut show';
+  wrap.innerHTML=`<div class="cut-card"><div class="cut-scene"><canvas id="cutHero" width="80" height="80"></canvas><div class="cut-vs">⚔️</div><canvas id="cutMon" class="cmon" width="80" height="80"></canvas></div><div class="cut-victory">VICTORY!</div><div class="cut-sub">${title} — cleared</div><button class="pixbtn big" id="cutGo">Onward →</button></div>`;
+  document.body.appendChild(wrap);
+  drawAvatarTo(wrap.querySelector('#cutHero'),state.avatar,5);
+  drawMonster(wrap.querySelector('#cutMon'),type,5);
+  wrap.querySelector('#cutGo').onclick=()=>{wrap.remove();burst();};
+}
+function bossCutscene(){ ensureAvatar();
+  const wrap=document.createElement('div');wrap.className='cut show';
+  wrap.innerHTML=`<div class="cut-card"><div class="cut-scene"><canvas id="cutHero" width="80" height="80"></canvas><div class="cut-vs">⚔️</div><canvas id="cutMon" class="cmon" width="96" height="96"></canvas></div><div class="cut-victory">FOUNDATION<br>CLEARED!</div><div class="cut-sub">You slayed the Doubt Dragon.<br>Phase 2 · Momentum unlocked 🔓</div><button class="pixbtn big" id="cutGo">Claim your victory 🎉</button></div>`;
+  document.body.appendChild(wrap);
+  drawAvatarTo(wrap.querySelector('#cutHero'),state.avatar,5);
+  drawMonster(wrap.querySelector('#cutMon'),'dragon',6);
+  wrap.querySelector('#cutGo').onclick=()=>{wrap.remove();burst();setTimeout(burst,400);};
 }
 
 /* ---- Auth + cloud sync (Supabase) ----
