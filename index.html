@@ -198,6 +198,11 @@
   .node.boss.current .ntoken{animation:pulse 1s ease-in-out infinite;box-shadow:0 0 18px rgba(192,57,43,.6)}
   .node.boss .nlabel{color:#FF8A7A;font-family:"Press Start 2P",monospace;font-size:9px;line-height:1.5}
   @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+  .crt{position:relative;border-radius:14px;overflow:hidden;border:2px solid var(--cardline);
+    box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 0 44px rgba(0,0,0,.45);margin-top:8px;background:#356b32}
+  .crt canvas{display:block;width:100%;height:auto}
+  .crt::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(rgba(0,0,0,.10) 0 2px,transparent 2px 4px)}
+  .maptip{font-family:"Press Start 2P",monospace;font-size:8px;color:var(--sub);text-align:center;margin-top:12px;line-height:1.7}
   /* creator + cutscene overlays */
   .creator,.cut{position:fixed;inset:0;z-index:110;background:rgba(8,8,9,.96);backdrop-filter:blur(8px);
     display:none;align-items:center;justify-content:center;padding:22px}
@@ -586,6 +591,64 @@ function drawMonster(cv,type,s){const ctx=cv.getContext('2d');ctx.imageSmoothing
   }
 }
 const MONS=['slime','goblin','bat','goblin','slime','bat','goblin','slime'];
+function pcirc(ctx,cx,cy,r,c){ctx.fillStyle=c;cx=Math.round(cx);cy=Math.round(cy);for(let dy=-r;dy<=r;dy++){const dx=Math.floor(Math.sqrt(Math.max(0,r*r-dy*dy)));ctx.fillRect(cx-dx,cy+dy,dx*2+1,1);}}
+function drawHeroAt(ctx,av,cx,feetY,s,bob){const ox=Math.round(cx-8*s),oy=Math.round(feetY-16*s-(bob||0));
+  const P=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(ox+x*s,oy+y*s,w*s,h*s);};
+  const sk=av.skin,ha=av.hair,sh=av.shirt,pa=av.pants,sho='#2a2320',eye='#15110a';
+  P(6,12,2,3,pa);P(8,12,2,3,pa);P(6,15,2,1,sho);P(8,15,2,1,sho);
+  P(5,8,6,4,sh);P(4,8,1,3,sk);P(11,8,1,3,sk);
+  P(5,3,6,5,sk);P(5,2,6,1,ha);P(5,2,1,2,ha);P(10,2,1,2,ha);
+  if(av.gender==='female'){P(4,3,1,6,ha);P(11,3,1,6,ha);}
+  P(6,5,1,1,eye);P(9,5,1,1,eye);
+}
+function drawWorld(ctx,ow,oh,nodes,boss,curIdx,allDone,t){
+  const P=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.ceil(w),Math.ceil(h));};
+  P(0,0,ow,oh,'#3E7D3A');
+  ctx.fillStyle='#4C9243';for(let i=0;i<46;i++)ctx.fillRect((i*53)%ow,(i*97)%oh,3,2);
+  ctx.fillStyle='#356b32';for(let i=0;i<34;i++)ctx.fillRect((i*71+20)%ow,(i*131+11)%oh,2,2);
+  pcirc(ctx,18,oh-22,10,'#2f63a8');pcirc(ctx,18,oh-23,8,'#3a78c2');pcirc(ctx,16,oh-25,3,'#7fb3e8');
+  const trees=[[14,oh-46],[148,oh-74],[12,oh-122],[150,oh-152],[16,oh-200],[146,oh-226],[150,76],[12,96]];
+  trees.forEach(([tx,ty])=>{if(ty>44&&ty<oh-6){P(tx-1,ty,3,5,'#6b4a2a');pcirc(ctx,tx,ty-3,5,'#2f6e34');pcirc(ctx,tx,ty-5,4,'#3c8a40');pcirc(ctx,tx-1,ty-6,2,'#56a84e');}});
+  const pts=nodes.map(nd=>({x:nd.x,y:nd.y}));pts.push({x:boss.x,y:boss.y});
+  for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1],steps=Math.max(2,Math.round(Math.hypot(b.x-a.x,b.y-a.y)/1.5));
+    for(let s2=0;s2<=steps;s2++){const x=a.x+(b.x-a.x)*s2/steps,y=a.y+(b.y-a.y)*s2/steps;pcirc(ctx,x,y,5,'#8a6536');pcirc(ctx,x,y,4,'#B8884A');pcirc(ctx,x,y,1,'#cfa055');}}
+  nodes.forEach(nd=>{const done=state.done[TASKS[nd.i].id],cur=(nd.i===curIdx);
+    if(cur){const pr=8+Math.round(Math.abs(Math.sin((t||0)*4))*2);pcirc(ctx,nd.x,nd.y,pr,'rgba(240,210,122,0.20)');}
+    let o,c2,hl;if(done){o='#9a6a16';c2='#E8C26B';hl='#fff3cf';}else if(cur||allDone){o='#9a6a16';c2='#F0D27A';hl='#ffffff';}else{o='#4a4f55';c2='#7a8088';hl='#aab0b6';}
+    pcirc(ctx,nd.x,nd.y,7,o);pcirc(ctx,nd.x,nd.y,6,c2);pcirc(ctx,nd.x-1,nd.y-1,2,hl);
+    if(done){P(nd.x-2,nd.y,1,2,'#7a5510');P(nd.x-1,nd.y+1,1,1,'#7a5510');P(nd.x,nd.y-1,1,3,'#7a5510');}});
+  const bx=boss.x,by=boss.y;
+  P(bx-13,by-10,5,10,'#6e747c');P(bx+8,by-10,5,10,'#6e747c');
+  P(bx-12,by-2,24,12,'#7a7f86');P(bx-12,by-2,24,2,'#9aa0a8');
+  for(let k=-13;k<13;k+=4)P(bx+k,by-12,2,2,'#6e747c');
+  P(bx-2,by+3,4,7,'#2a221c');
+  P(bx-1,by-18,1,6,'#7a7f86');P(bx,by-17,5,3,'#C0392B');
+  P(bx-9,by-6,3,3,allDone?'#7a3a33':'#C0392B');P(bx-9,by-6,1,1,'#ffffff');
+  const here=allDone?{x:bx,y:by+15}:(nodes[curIdx]||nodes[nodes.length-1]||{x:ow/2,y:oh-24});
+  pcirc(ctx,here.x,here.y+1,4,'rgba(0,0,0,0.28)');
+  const bob=Math.round(Math.abs(Math.sin((t||0)*3))*2);
+  drawHeroAt(ctx,state.avatar,here.x,here.y,1,bob);
+}
+let _mapRAF=null;
+function setupWorld(curIdx,allDone){
+  const cv=$('#worldCv');if(!cv)return;
+  const ow=160,S=3,n=TASKS.length,oh=64+n*26+30;
+  cv.width=ow*S;cv.height=oh*S;
+  const oc=document.createElement('canvas');oc.width=ow;oc.height=oh;const octx=oc.getContext('2d');octx.imageSmoothingEnabled=false;
+  const nodes=[],yB=oh-26,yT=72;
+  for(let i=0;i<n;i++){const f=n>1?i/(n-1):0,y=yB-f*(yB-yT),x=ow/2+Math.sin(i*0.95)*(ow*0.30);nodes.push({x,y,i});}
+  const boss={x:ow/2,y:36};
+  const vctx=cv.getContext('2d');vctx.imageSmoothingEnabled=false;
+  function draw(t){drawWorld(octx,ow,oh,nodes,boss,curIdx,allDone,t);vctx.clearRect(0,0,cv.width,cv.height);vctx.drawImage(oc,0,0,ow,oh,0,0,cv.width,cv.height);}
+  draw(0);
+  cancelAnimationFrame(_mapRAF);let st=null,last=0;
+  function loop(ts){if(!document.body.contains(cv))return;const tab0=document.querySelector('.tab[data-tab="0"]');if(tab0&&!tab0.classList.contains('active')){_mapRAF=requestAnimationFrame(loop);return;}if(st==null)st=ts;if(ts-last>90){last=ts;draw((ts-st)/1000);}_mapRAF=requestAnimationFrame(loop);}
+  _mapRAF=requestAnimationFrame(loop);
+  cv.onclick=(e)=>{const r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)/r.width*ow,my=(e.clientY-r.top)/r.height*oh;
+    if(Math.hypot(mx-boss.x,my-boss.y)<18){allDone?bossCutscene():toast('Clear every milestone to face the boss!');return;}
+    let best=-1,bd=99;nodes.forEach(nd=>{const d=Math.hypot(mx-nd.x,my-nd.y);if(d<bd){bd=d;best=nd.i;}});
+    if(bd<16){const done=state.done[TASKS[best].id],reachable=done||best<=curIdx||allDone;if(!reachable){toast('Finish the earlier milestone first.');return;}goTab(2);}};
+}
 function renderDashboard(){
   ensureAvatar();
   $('#dashTitle').textContent='The Foundation';
@@ -595,21 +658,15 @@ function renderDashboard(){
   let h=`<div class="game">`;
   h+=`<div class="phasebar"><div class="phase on"><span class="pn">PHASE 1</span>FOUNDATION</div><div class="phase"><span class="pn">PHASE 2</span>MOMENTUM 🔒</div><div class="phase"><span class="pn">PHASE 3</span>MASTERY 🔒</div></div>`;
   h+=`<div class="herostrip"><canvas id="avMini" width="48" height="48"></canvas><div class="hs-info"><div class="hs-name">${F('name','Your Hero')}</div><div class="hs-sub">${doneN}/${totN} milestones cleared · ${pct}%</div></div><button class="pixbtn ghost" id="btnCustom">Customize</button></div>`;
-  h+=`<div class="board">`;
-  TASKS.forEach((t,i)=>{const done=!!state.done[t.id],current=(i===curIdx);
-    const cls=done?'node done':(current?'node current':((i<curIdx||allDone)?'node':'node locked'));
-    h+=`<div class="${cls}" data-node="${i}"><div class="ntoken">${done?'★':t.icon}</div><div class="nlabel">${t.title}</div>${current?'<canvas class="avhere" width="40" height="40"></canvas>':''}</div>`;});
-  h+=`<div class="node boss ${allDone?'current':'locked'}" data-node="boss"><div class="ntoken">🐉</div><div class="nlabel">BOSS:<br>THE DOUBT DRAGON</div></div>`;
-  h+=`</div></div>`;
+  h+=`<div class="crt"><canvas id="worldCv"></canvas></div>`;
+  h+=`<p class="maptip" id="mapTip"></p>`;
+  h+=`</div>`;
   const body=$('#dashBody'); body.innerHTML=h;
   drawAvatarTo($('#avMini'),state.avatar,3);
-  const ah=document.querySelector('.avhere'); if(ah)drawAvatarTo(ah,state.avatar,2.5);
-  body.querySelectorAll('[data-node]').forEach(el=>el.addEventListener('click',()=>{const nd=el.dataset.node;
-    if(nd==='boss'){ allDone?bossCutscene():toast('Clear every milestone to face the boss!'); return; }
-    if(el.classList.contains('locked')){toast('Finish the milestone before this one first.');return;}
-    goTab(2);}));
   $('#btnCustom').onclick=openCreator;
-  if(typeof cloudOn!=='undefined'&&cloudOn&&user){body.insertAdjacentHTML('beforeend',`<p style="text-align:center;margin-top:18px"><a class="glink" id="logoutLink" style="cursor:pointer">Log out</a></p>`);const lo=$('#logoutLink');if(lo)lo.onclick=()=>{if(window.sb)window.sb.auth.signOut().then(()=>{sessionStorage.removeItem('pulled');location.reload();});};}
+  setupWorld(curIdx,allDone);
+  $('#mapTip').textContent= allDone?'⚔️ Tap the castle to face the boss!':'Tap the glowing tile to take action →';
+  if(typeof cloudOn!=='undefined'&&cloudOn&&user){body.insertAdjacentHTML('beforeend',`<p style="text-align:center;margin-top:16px"><a class="glink" id="logoutLink" style="cursor:pointer">Log out</a></p>`);const lo=$('#logoutLink');if(lo)lo.onclick=()=>{if(window.sb)window.sb.auth.signOut().then(()=>{sessionStorage.removeItem('pulled');location.reload();});};}
   if(!state.avatarCreated)setTimeout(openCreator,250);
 }
 function openCreator(){ ensureAvatar(); const av=Object.assign({},state.avatar);
