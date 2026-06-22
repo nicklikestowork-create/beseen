@@ -219,7 +219,13 @@
   .pals{display:flex;gap:6px;flex-wrap:wrap}
   .sw{width:26px;height:26px;border-radius:7px;border:2px solid rgba(255,255,255,.25);cursor:pointer;padding:0}
   .sw:active{transform:scale(.9)}
-  .cut-scene{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:14px}
+  .cut-scene{display:flex;align-items:flex-end;justify-content:center;gap:6px;margin-bottom:14px;padding:14px 8px 0;
+    border:2px solid var(--cardline);border-radius:12px;position:relative;overflow:hidden;
+    background:linear-gradient(#241d3a 0 58%,#3E7D3A 58% 78%,#356b32 78% 100%)}
+  .cut-scene::before{content:"";position:absolute;top:8px;left:14px;width:18px;height:18px;border-radius:50%;
+    background:#F0D27A;box-shadow:0 0 14px rgba(240,210,122,.6)}
+  .cut-scene::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(rgba(0,0,0,.10) 0 2px,transparent 2px 4px)}
+  .cut-scene canvas{position:relative}
   .cut-vs{font-size:24px;animation:vsflash .4s ease-in-out 3}
   @keyframes vsflash{50%{transform:scale(1.5) rotate(-12deg)}}
   #cutHero{animation:herobob 1s ease-in-out infinite}
@@ -569,15 +575,21 @@ progress();
 
 /* ---- Board game (home) ---- */
 function ensureAvatar(){ if(!state.avatar) state.avatar={gender:'male',skin:'#E8B98A',hair:'#4A2C12',shirt:'#FF6B5B',pants:'#3A3550'}; }
-function apx(ctx,x,y,w,hh,c,s){ctx.fillStyle=c;ctx.fillRect(Math.round(x*s),Math.round(y*s),Math.ceil(w*s),Math.ceil(hh*s));}
+function adj(hex,d){if(typeof hex!=='string'||hex[0]!=='#'||hex.length<7)return hex;let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);const cl=v=>Math.max(0,Math.min(255,v));return '#'+[cl(r+d),cl(g+d),cl(b+d)].map(v=>v.toString(16).padStart(2,'0')).join('');}
+const hShade=c=>adj(c,-36),hLight=c=>adj(c,30);
+function paintHero(P,av){
+  const sk=av.skin,ha=av.hair,sh=av.shirt,pa=av.pants,sho='#241d18',eye='#15110a',blade='#d7dade',hilt='#8a6536';
+  P(6,12,2,3,pa);P(8,12,2,3,pa);P(8,12,1,3,hShade(pa));P(6,15,2,1,sho);P(8,15,2,1,sho);
+  P(5,8,6,4,sh);P(5,8,1,4,hLight(sh));P(10,8,1,4,hShade(sh));
+  P(4,8,1,3,sk);P(11,8,1,3,sk);
+  P(13,3,1,8,blade);P(13,3,1,1,hLight(blade));P(12,10,3,1,hilt);
+  P(5,3,6,5,sk);P(10,4,1,3,hShade(sk));
+  P(5,2,6,1,ha);P(5,2,1,2,ha);P(10,2,1,2,ha);
+  if(av.gender==='female'){P(4,3,1,6,ha);P(11,3,1,6,ha);}
+  P(6,5,1,1,eye);P(9,5,1,1,eye);P(7,6,2,1,hShade(sk));
+}
 function drawAvatarTo(cv,av,s){ if(!cv)return; const ctx=cv.getContext('2d'); ctx.imageSmoothingEnabled=false; ctx.clearRect(0,0,cv.width,cv.height);
-  const sk=av.skin,ha=av.hair,sh=av.shirt,pa=av.pants,sho='#2a2320',eye='#15110a';
-  apx(ctx,6,12,2,3,pa,s);apx(ctx,8,12,2,3,pa,s); apx(ctx,6,15,2,1,sho,s);apx(ctx,8,15,2,1,sho,s);
-  apx(ctx,5,8,6,4,sh,s); apx(ctx,4,8,1,3,sk,s);apx(ctx,11,8,1,3,sk,s);
-  apx(ctx,5,3,6,5,sk,s);
-  apx(ctx,5,2,6,1,ha,s);apx(ctx,5,2,1,2,ha,s);apx(ctx,10,2,1,2,ha,s);
-  if(av.gender==='female'){apx(ctx,4,3,1,6,ha,s);apx(ctx,11,3,1,6,ha,s);}
-  apx(ctx,6,5,1,1,eye,s);apx(ctx,9,5,1,1,eye,s);
+  paintHero((x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(Math.round(x*s),Math.round(y*s),Math.ceil(w*s),Math.ceil(h*s));},av);
 }
 function drawMonster(cv,type,s){const ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,cv.width,cv.height);
   const P=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(Math.round(x*s),Math.round(y*s),Math.ceil(w*s),Math.ceil(h*s));};
@@ -593,27 +605,23 @@ function drawMonster(cv,type,s){const ctx=cv.getContext('2d');ctx.imageSmoothing
 const MONS=['slime','goblin','bat','goblin','slime','bat','goblin','slime'];
 function pcirc(ctx,cx,cy,r,c){ctx.fillStyle=c;cx=Math.round(cx);cy=Math.round(cy);for(let dy=-r;dy<=r;dy++){const dx=Math.floor(Math.sqrt(Math.max(0,r*r-dy*dy)));ctx.fillRect(cx-dx,cy+dy,dx*2+1,1);}}
 function drawHeroAt(ctx,av,cx,feetY,s,bob){const ox=Math.round(cx-8*s),oy=Math.round(feetY-16*s-(bob||0));
-  const P=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(ox+x*s,oy+y*s,w*s,h*s);};
-  const sk=av.skin,ha=av.hair,sh=av.shirt,pa=av.pants,sho='#2a2320',eye='#15110a';
-  P(6,12,2,3,pa);P(8,12,2,3,pa);P(6,15,2,1,sho);P(8,15,2,1,sho);
-  P(5,8,6,4,sh);P(4,8,1,3,sk);P(11,8,1,3,sk);
-  P(5,3,6,5,sk);P(5,2,6,1,ha);P(5,2,1,2,ha);P(10,2,1,2,ha);
-  if(av.gender==='female'){P(4,3,1,6,ha);P(11,3,1,6,ha);}
-  P(6,5,1,1,eye);P(9,5,1,1,eye);
+  paintHero((x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(ox+x*s,oy+y*s,Math.ceil(w*s),Math.ceil(h*s));},av);
 }
-function drawWorld(ctx,ow,oh,nodes,boss,curIdx,allDone,t){
+function drawWorld(ctx,ow,oh,nodes,boss,curIdx,allDone,t,hp){
   const P=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.ceil(w),Math.ceil(h));};
   P(0,0,ow,oh,'#3E7D3A');
   ctx.fillStyle='#4C9243';for(let i=0;i<46;i++)ctx.fillRect((i*53)%ow,(i*97)%oh,3,2);
   ctx.fillStyle='#356b32';for(let i=0;i<34;i++)ctx.fillRect((i*71+20)%ow,(i*131+11)%oh,2,2);
-  pcirc(ctx,18,oh-22,10,'#2f63a8');pcirc(ctx,18,oh-23,8,'#3a78c2');pcirc(ctx,16,oh-25,3,'#7fb3e8');
+  for(let k=0;k<2;k++){const cx=((t*7+k*95)%(ow+60))-30,cy=46+k*150;pcirc(ctx,cx,cy,12,'rgba(0,0,0,0.05)');pcirc(ctx,cx+10,cy+2,9,'rgba(0,0,0,0.05)');}
+  pcirc(ctx,18,oh-22,10,'#2f63a8');pcirc(ctx,18,oh-23,8,'#3a78c2');
+  pcirc(ctx,16+Math.round(Math.sin(t*1.5)*2),oh-25,2,'#9cc7f0');
   const trees=[[14,oh-46],[148,oh-74],[12,oh-122],[150,oh-152],[16,oh-200],[146,oh-226],[150,76],[12,96]];
-  trees.forEach(([tx,ty])=>{if(ty>44&&ty<oh-6){P(tx-1,ty,3,5,'#6b4a2a');pcirc(ctx,tx,ty-3,5,'#2f6e34');pcirc(ctx,tx,ty-5,4,'#3c8a40');pcirc(ctx,tx-1,ty-6,2,'#56a84e');}});
+  trees.forEach(([tx,ty],idx)=>{if(ty>44&&ty<oh-6){const sw=Math.round(Math.sin(t*1.6+idx)*1);P(tx-1,ty,3,5,'#6b4a2a');pcirc(ctx,tx+sw,ty-3,5,'#2f6e34');pcirc(ctx,tx+sw,ty-5,4,'#3c8a40');pcirc(ctx,tx-1+sw,ty-6,2,'#56a84e');}});
   const pts=nodes.map(nd=>({x:nd.x,y:nd.y}));pts.push({x:boss.x,y:boss.y});
   for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1],steps=Math.max(2,Math.round(Math.hypot(b.x-a.x,b.y-a.y)/1.5));
     for(let s2=0;s2<=steps;s2++){const x=a.x+(b.x-a.x)*s2/steps,y=a.y+(b.y-a.y)*s2/steps;pcirc(ctx,x,y,5,'#8a6536');pcirc(ctx,x,y,4,'#B8884A');pcirc(ctx,x,y,1,'#cfa055');}}
   nodes.forEach(nd=>{const done=state.done[TASKS[nd.i].id],cur=(nd.i===curIdx);
-    if(cur){const pr=8+Math.round(Math.abs(Math.sin((t||0)*4))*2);pcirc(ctx,nd.x,nd.y,pr,'rgba(240,210,122,0.20)');}
+    if(cur){const pr=8+Math.round(Math.abs(Math.sin(t*4))*2);pcirc(ctx,nd.x,nd.y,pr,'rgba(240,210,122,0.20)');}
     let o,c2,hl;if(done){o='#9a6a16';c2='#E8C26B';hl='#fff3cf';}else if(cur||allDone){o='#9a6a16';c2='#F0D27A';hl='#ffffff';}else{o='#4a4f55';c2='#7a8088';hl='#aab0b6';}
     pcirc(ctx,nd.x,nd.y,7,o);pcirc(ctx,nd.x,nd.y,6,c2);pcirc(ctx,nd.x-1,nd.y-1,2,hl);
     if(done){P(nd.x-2,nd.y,1,2,'#7a5510');P(nd.x-1,nd.y+1,1,1,'#7a5510');P(nd.x,nd.y-1,1,3,'#7a5510');}});
@@ -622,12 +630,12 @@ function drawWorld(ctx,ow,oh,nodes,boss,curIdx,allDone,t){
   P(bx-12,by-2,24,12,'#7a7f86');P(bx-12,by-2,24,2,'#9aa0a8');
   for(let k=-13;k<13;k+=4)P(bx+k,by-12,2,2,'#6e747c');
   P(bx-2,by+3,4,7,'#2a221c');
-  P(bx-1,by-18,1,6,'#7a7f86');P(bx,by-17,5,3,'#C0392B');
+  P(bx-1,by-18,1,6,'#7a7f86');P(bx,by-17,4+Math.round(Math.sin(t*4)*1)+1,3,'#C0392B');
   P(bx-9,by-6,3,3,allDone?'#7a3a33':'#C0392B');P(bx-9,by-6,1,1,'#ffffff');
-  const here=allDone?{x:bx,y:by+15}:(nodes[curIdx]||nodes[nodes.length-1]||{x:ow/2,y:oh-24});
-  pcirc(ctx,here.x,here.y+1,4,'rgba(0,0,0,0.28)');
-  const bob=Math.round(Math.abs(Math.sin((t||0)*3))*2);
-  drawHeroAt(ctx,state.avatar,here.x,here.y,1,bob);
+  const h=hp||{x:ow/2,y:oh-26};
+  pcirc(ctx,h.x,h.y+1,4,'rgba(0,0,0,0.28)');
+  const bob=h.walking?Math.round(Math.abs(Math.sin(t*12))*2):Math.round(Math.abs(Math.sin(t*3))*2);
+  drawHeroAt(ctx,state.avatar,h.x,h.y,1,bob);
 }
 let _mapRAF=null;
 function setupWorld(curIdx,allDone){
@@ -638,11 +646,23 @@ function setupWorld(curIdx,allDone){
   const nodes=[],yB=oh-26,yT=72;
   for(let i=0;i<n;i++){const f=n>1?i/(n-1):0,y=yB-f*(yB-yT),x=ow/2+Math.sin(i*0.95)*(ow*0.30);nodes.push({x,y,i});}
   const boss={x:ow/2,y:36};
+  const center=idx=>idx>=n?{x:boss.x,y:boss.y+15}:(nodes[idx]?{x:nodes[idx].x,y:nodes[idx].y}:{x:ow/2,y:oh-26});
+  const targetIdx=allDone?n:Math.max(0,curIdx);
+  let seen=(typeof state._seenIdx==='number')?state._seenIdx:targetIdx; if(seen>targetIdx)seen=targetIdx;
+  const walking=targetIdx>seen;
+  const wpts=[];for(let i=seen;i<=targetIdx;i++)wpts.push(center(i));
+  const walkDur=Math.max(0.001,(wpts.length-1)*0.55);
+  let committed=!walking;
+  if(!walking&&state._seenIdx!==targetIdx){state._seenIdx=targetIdx;save();}
+  function heroPos(t){ if(!walking||t>=walkDur)return center(targetIdx);
+    const p=t/walkDur*(wpts.length-1),i=Math.floor(p),f=p-i,a=wpts[i],b=wpts[Math.min(i+1,wpts.length-1)];
+    return {x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f,walking:true};}
   const vctx=cv.getContext('2d');vctx.imageSmoothingEnabled=false;
-  function draw(t){drawWorld(octx,ow,oh,nodes,boss,curIdx,allDone,t);vctx.clearRect(0,0,cv.width,cv.height);vctx.drawImage(oc,0,0,ow,oh,0,0,cv.width,cv.height);}
+  function draw(t){ if(walking&&!committed&&t>=walkDur){committed=true;state._seenIdx=targetIdx;save();}
+    drawWorld(octx,ow,oh,nodes,boss,curIdx,allDone,t,heroPos(t));vctx.clearRect(0,0,cv.width,cv.height);vctx.drawImage(oc,0,0,ow,oh,0,0,cv.width,cv.height);}
   draw(0);
   cancelAnimationFrame(_mapRAF);let st=null,last=0;
-  function loop(ts){if(!document.body.contains(cv))return;const tab0=document.querySelector('.tab[data-tab="0"]');if(tab0&&!tab0.classList.contains('active')){_mapRAF=requestAnimationFrame(loop);return;}if(st==null)st=ts;if(ts-last>90){last=ts;draw((ts-st)/1000);}_mapRAF=requestAnimationFrame(loop);}
+  function loop(ts){if(!document.body.contains(cv))return;const tab0=document.querySelector('.tab[data-tab="0"]');if(tab0&&!tab0.classList.contains('active')){_mapRAF=requestAnimationFrame(loop);return;}if(st==null)st=ts;const tt=(ts-st)/1000;if((walking&&tt<walkDur+0.3)||ts-last>90){last=ts;draw(tt);}_mapRAF=requestAnimationFrame(loop);}
   _mapRAF=requestAnimationFrame(loop);
   cv.onclick=(e)=>{const r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)/r.width*ow,my=(e.clientY-r.top)/r.height*oh;
     if(Math.hypot(mx-boss.x,my-boss.y)<18){allDone?bossCutscene():toast('Clear every milestone to face the boss!');return;}
