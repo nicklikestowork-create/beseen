@@ -666,13 +666,13 @@ function setupWorld(curIdx,allDone){
   const ow=340,dpr=Math.min(2,window.devicePixelRatio||1),n=TASKS.length,oh=120+n*54+70;
   cv.width=ow*dpr;cv.height=oh*dpr;
   const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=true;
-  const yB=oh-48,yT=140;
-  const pathFn=u=>({x:ow/2+Math.sin(u*5.2+0.6)*(ow*0.32)*(1-u*0.4),y:yB-u*(yB-yT)});
+  const yTop=Math.round(oh*0.26),yBot=oh-58;
+  const pathFn=u=>({x:ow/2+Math.sin(u*5.2+0.6)*(ow*0.32)*(1-u*0.4),y:yTop+u*(yBot-yTop)});
   const PAL=['#FF5A5A','#FFA63D','#FFD93D','#5BD96A','#4DA6FF','#C77DFF','#FF7FB6'];
   const uArr=[];for(let i=0;i<n;i++)uArr.push(0.05+(n>1?i*(0.86/(n-1)):0));
   const mnodes=uArr.map((u,i)=>{const p=pathFn(u);return {x:p.x,y:p.y,i,c:PAL[i%PAL.length]};});
-  const boss={x:ow/2,y:yT-58};
-  const pathSamples=[];for(let u=0;u<=1.001;u+=0.02)pathSamples.push(pathFn(u));pathSamples.push({x:boss.x,y:boss.y+18});
+  const boss={x:ow/2,y:yBot+20};
+  const pathSamples=[];for(let u=0;u<=1.001;u+=0.02)pathSamples.push(pathFn(u));pathSamples.push({x:boss.x,y:boss.y-16});
   const track=[];for(let u=0;u<=0.99;u+=0.018){const p=pathFn(u);let near=false;for(const uu of uArr){if(Math.abs(u-uu)<0.03){near=true;break;}}if(!near)track.push({x:p.x,y:p.y,c:PAL[Math.floor(u*70)%PAL.length]});}
   const uOf=idx=>idx>=n?1:(idx<0?0:uArr[idx]);
   const targetIdx=allDone?n:Math.max(0,curIdx);
