@@ -199,7 +199,7 @@
   .node.boss .nlabel{color:#FF8A7A;font-family:"Press Start 2P",monospace;font-size:9px;line-height:1.5}
   @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
   .crt{position:relative;border-radius:14px;overflow:hidden;border:2px solid var(--cardline);
-    box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 0 44px rgba(0,0,0,.45);margin-top:8px;background:#356b32}
+    box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 0 30px rgba(0,0,0,.28);margin-top:8px;background:#74C24A}
   .crt canvas{display:block;width:100%;height:auto}
   .crt::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(rgba(0,0,0,.10) 0 2px,transparent 2px 4px)}
   .maptip{font-family:"Press Start 2P",monospace;font-size:8px;color:var(--sub);text-align:center;margin-top:12px;line-height:1.7}
@@ -607,32 +607,44 @@ function pcirc(ctx,cx,cy,r,c){ctx.fillStyle=c;cx=Math.round(cx);cy=Math.round(cy
 function drawHeroAt(ctx,av,cx,feetY,s,bob){const ox=Math.round(cx-8*s),oy=Math.round(feetY-16*s-(bob||0));
   paintHero((x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(ox+x*s,oy+y*s,Math.ceil(w*s),Math.ceil(h*s));},av);
 }
-function drawWorld(ctx,ow,oh,nodes,boss,curIdx,allDone,t,hp){
+function drawWorld(ctx,ow,oh,track,mnodes,boss,curIdx,allDone,t,hp){
   const P=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.ceil(w),Math.ceil(h));};
-  P(0,0,ow,oh,'#3E7D3A');
-  ctx.fillStyle='#4C9243';for(let i=0;i<46;i++)ctx.fillRect((i*53)%ow,(i*97)%oh,3,2);
-  ctx.fillStyle='#356b32';for(let i=0;i<34;i++)ctx.fillRect((i*71+20)%ow,(i*131+11)%oh,2,2);
-  for(let k=0;k<2;k++){const cx=((t*7+k*95)%(ow+60))-30,cy=46+k*150;pcirc(ctx,cx,cy,12,'rgba(0,0,0,0.05)');pcirc(ctx,cx+10,cy+2,9,'rgba(0,0,0,0.05)');}
-  pcirc(ctx,18,oh-22,10,'#2f63a8');pcirc(ctx,18,oh-23,8,'#3a78c2');
-  pcirc(ctx,16+Math.round(Math.sin(t*1.5)*2),oh-25,2,'#9cc7f0');
-  const trees=[[14,oh-46],[148,oh-74],[12,oh-122],[150,oh-152],[16,oh-200],[146,oh-226],[150,76],[12,96]];
-  trees.forEach(([tx,ty],idx)=>{if(ty>44&&ty<oh-6){const sw=Math.round(Math.sin(t*1.6+idx)*1);P(tx-1,ty,3,5,'#6b4a2a');pcirc(ctx,tx+sw,ty-3,5,'#2f6e34');pcirc(ctx,tx+sw,ty-5,4,'#3c8a40');pcirc(ctx,tx-1+sw,ty-6,2,'#56a84e');}});
-  const pts=nodes.map(nd=>({x:nd.x,y:nd.y}));pts.push({x:boss.x,y:boss.y});
-  for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1],steps=Math.max(2,Math.round(Math.hypot(b.x-a.x,b.y-a.y)/1.5));
-    for(let s2=0;s2<=steps;s2++){const x=a.x+(b.x-a.x)*s2/steps,y=a.y+(b.y-a.y)*s2/steps;pcirc(ctx,x,y,5,'#8a6536');pcirc(ctx,x,y,4,'#B8884A');pcirc(ctx,x,y,1,'#cfa055');}}
-  nodes.forEach(nd=>{const done=state.done[TASKS[nd.i].id],cur=(nd.i===curIdx);
-    if(cur){const pr=8+Math.round(Math.abs(Math.sin(t*4))*2);pcirc(ctx,nd.x,nd.y,pr,'rgba(240,210,122,0.20)');}
-    let o,c2,hl;if(done){o='#9a6a16';c2='#E8C26B';hl='#fff3cf';}else if(cur||allDone){o='#9a6a16';c2='#F0D27A';hl='#ffffff';}else{o='#4a4f55';c2='#7a8088';hl='#aab0b6';}
-    pcirc(ctx,nd.x,nd.y,7,o);pcirc(ctx,nd.x,nd.y,6,c2);pcirc(ctx,nd.x-1,nd.y-1,2,hl);
-    if(done){P(nd.x-2,nd.y,1,2,'#7a5510');P(nd.x-1,nd.y+1,1,1,'#7a5510');P(nd.x,nd.y-1,1,3,'#7a5510');}});
+  // bright cheerful grass
+  P(0,0,ow,oh,'#74C24A');
+  // rolling hills
+  pcirc(ctx,-8,Math.round(oh*0.28),46,'#5FA83C');pcirc(ctx,ow+10,Math.round(oh*0.6),54,'#5FA83C');pcirc(ctx,-12,Math.round(oh*0.86),42,'#68b341');
+  ctx.fillStyle='#86D258';for(let i=0;i<40;i++)ctx.fillRect((i*53)%ow,(i*97)%oh,3,2);
+  // cloud shadows
+  for(let k=0;k<2;k++){const cx=((t*7+k*95)%(ow+60))-30,cy=50+k*150;pcirc(ctx,cx,cy,12,'rgba(0,0,0,0.05)');pcirc(ctx,cx+10,cy+2,9,'rgba(0,0,0,0.05)');}
+  // pond
+  pcirc(ctx,15,oh-18,8,'#3a78c2');pcirc(ctx,14+Math.round(Math.sin(t*1.5)*1),oh-20,2,'#9cc7f0');
+  // little houses
+  const hs=(x,y,roof)=>{P(x-4,y-2,8,6,'#f4ecd8');P(x-5,y-4,10,2,roof);P(x-1,y+1,2,3,'#8a6a44');P(x-3,y,2,2,'#bcd6f0');P(x+1,y,2,2,'#bcd6f0');};
+  hs(15,Math.round(oh*0.40),'#E0533D');hs(ow-15,Math.round(oh*0.54),'#4DA6FF');hs(ow-13,Math.round(oh*0.18),'#C77DFF');
+  // trees
+  [[ow-13,oh-38],[12,oh-66],[ow-11,oh-104]].forEach(([tx,ty],idx)=>{if(ty>44){const sw=Math.round(Math.sin(t*1.6+idx)*1);P(tx-1,ty,3,5,'#6b4a2a');pcirc(ctx,tx+sw,ty-3,5,'#2f8e3e');pcirc(ctx,tx+sw,ty-5,4,'#46a64f');}});
+  // mountain behind castle
+  for(let m=0;m<16;m++){P(boss.x-15+m,boss.y-1-m,1,m+1,'#8b9199');}
+  P(boss.x-4,boss.y-15,8,3,'#e8edf2');
+  // colorful track spaces (Game of Life look)
+  track.forEach(sp=>{pcirc(ctx,sp.x,sp.y,3,'#ffffff');pcirc(ctx,sp.x,sp.y,2,sp.c);});
+  // milestone landmark tiles
+  mnodes.forEach(nd=>{const done=state.done[TASKS[nd.i].id],cur=(nd.i===curIdx);
+    if(cur){const pr=9+Math.round(Math.abs(Math.sin(t*4))*2);pcirc(ctx,nd.x,nd.y,pr,'rgba(255,255,255,0.32)');}
+    pcirc(ctx,nd.x,nd.y,8,'#ffffff');
+    pcirc(ctx,nd.x,nd.y,6, done?'#E8C26B':(cur?'#FF5A5A':nd.c));
+    pcirc(ctx,nd.x-1,nd.y-2,2,'rgba(255,255,255,0.55)');
+    if(done){P(nd.x-2,nd.y-1,1,3,'#6b4a10');P(nd.x-1,nd.y+1,2,1,'#6b4a10');P(nd.x,nd.y-2,1,3,'#6b4a10');}});
+  // castle
   const bx=boss.x,by=boss.y;
-  P(bx-13,by-10,5,10,'#6e747c');P(bx+8,by-10,5,10,'#6e747c');
-  P(bx-12,by-2,24,12,'#7a7f86');P(bx-12,by-2,24,2,'#9aa0a8');
-  for(let k=-13;k<13;k+=4)P(bx+k,by-12,2,2,'#6e747c');
+  P(bx-13,by-10,5,10,'#9aa0a8');P(bx+8,by-10,5,10,'#9aa0a8');
+  P(bx-12,by-2,24,12,'#aeb4bc');P(bx-12,by-2,24,2,'#c8ced6');
+  for(let k=-13;k<13;k+=4)P(bx+k,by-12,2,2,'#9aa0a8');
   P(bx-2,by+3,4,7,'#2a221c');
-  P(bx-1,by-18,1,6,'#7a7f86');P(bx,by-17,4+Math.round(Math.sin(t*4)*1)+1,3,'#C0392B');
+  P(bx-1,by-18,1,6,'#9aa0a8');P(bx,by-17,4+Math.round(Math.sin(t*4)*1)+1,3,'#E0533D');
   P(bx-9,by-6,3,3,allDone?'#7a3a33':'#C0392B');P(bx-9,by-6,1,1,'#ffffff');
-  const h=hp||{x:ow/2,y:oh-26};
+  // hero token
+  const h=hp||{x:ow/2,y:oh-24};
   pcirc(ctx,h.x,h.y+1,4,'rgba(0,0,0,0.28)');
   const bob=h.walking?Math.round(Math.abs(Math.sin(t*12))*2):Math.round(Math.abs(Math.sin(t*3))*2);
   drawHeroAt(ctx,state.avatar,h.x,h.y,1,bob);
@@ -640,34 +652,36 @@ function drawWorld(ctx,ow,oh,nodes,boss,curIdx,allDone,t,hp){
 let _mapRAF=null;
 function setupWorld(curIdx,allDone){
   const cv=$('#worldCv');if(!cv)return;
-  const ow=160,S=3,n=TASKS.length,oh=64+n*26+30;
+  const ow=160,S=3,n=TASKS.length,oh=70+n*28+30;
   cv.width=ow*S;cv.height=oh*S;
   const oc=document.createElement('canvas');oc.width=ow;oc.height=oh;const octx=oc.getContext('2d');octx.imageSmoothingEnabled=false;
-  const nodes=[],yB=oh-26,yT=72;
-  for(let i=0;i<n;i++){const f=n>1?i/(n-1):0,y=yB-f*(yB-yT),x=ow/2+Math.sin(i*0.95)*(ow*0.30);nodes.push({x,y,i});}
-  const boss={x:ow/2,y:36};
-  const center=idx=>idx>=n?{x:boss.x,y:boss.y+15}:(nodes[idx]?{x:nodes[idx].x,y:nodes[idx].y}:{x:ow/2,y:oh-26});
+  const yB=oh-28,yT=46;
+  const pathFn=(u)=>({x:ow/2+Math.sin(u*6.6+0.6)*(ow*0.30)*(1-u*0.55), y:yB-u*(yB-yT)});
+  const PAL=['#FF5A5A','#FFA63D','#FFD93D','#5BD96A','#4DA6FF','#C77DFF','#FF7FB6'];
+  const uArr=[];for(let i=0;i<n;i++)uArr.push(0.05+(n>1?i*(0.86/(n-1)):0));
+  const mnodes=uArr.map((u,i)=>{const p=pathFn(u);return {x:p.x,y:p.y,i,c:PAL[i%PAL.length]};});
+  const boss={x:ow/2,y:30};
+  const track=[];for(let u=0;u<=0.99;u+=0.011){const p=pathFn(u);let near=false;for(const uu of uArr){if(Math.abs(u-uu)<0.022){near=true;break;}}if(!near)track.push({x:p.x,y:p.y,c:PAL[Math.floor(u*90)%PAL.length]});}
+  const uOf=idx=>idx>=n?1:(idx<0?0:uArr[idx]);
   const targetIdx=allDone?n:Math.max(0,curIdx);
   let seen=(typeof state._seenIdx==='number')?state._seenIdx:targetIdx; if(seen>targetIdx)seen=targetIdx;
   const walking=targetIdx>seen;
-  const wpts=[];for(let i=seen;i<=targetIdx;i++)wpts.push(center(i));
-  const walkDur=Math.max(0.001,(wpts.length-1)*0.55);
+  const u0=uOf(seen),u1=uOf(targetIdx),walkDur=Math.max(0.001,(u1-u0)*5);
   let committed=!walking;
   if(!walking&&state._seenIdx!==targetIdx){state._seenIdx=targetIdx;save();}
-  function heroPos(t){ if(!walking||t>=walkDur)return center(targetIdx);
-    const p=t/walkDur*(wpts.length-1),i=Math.floor(p),f=p-i,a=wpts[i],b=wpts[Math.min(i+1,wpts.length-1)];
-    return {x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f,walking:true};}
+  function heroPos(t){ if(!walking||t>=walkDur)return allDone?{x:boss.x,y:boss.y+15}:pathFn(u1);
+    const p=pathFn(u0+(u1-u0)*(t/walkDur));return {x:p.x,y:p.y,walking:true};}
   const vctx=cv.getContext('2d');vctx.imageSmoothingEnabled=false;
   function draw(t){ if(walking&&!committed&&t>=walkDur){committed=true;state._seenIdx=targetIdx;save();}
-    drawWorld(octx,ow,oh,nodes,boss,curIdx,allDone,t,heroPos(t));vctx.clearRect(0,0,cv.width,cv.height);vctx.drawImage(oc,0,0,ow,oh,0,0,cv.width,cv.height);}
+    drawWorld(octx,ow,oh,track,mnodes,boss,curIdx,allDone,t,heroPos(t));vctx.clearRect(0,0,cv.width,cv.height);vctx.drawImage(oc,0,0,ow,oh,0,0,cv.width,cv.height);}
   draw(0);
   cancelAnimationFrame(_mapRAF);let st=null,last=0;
   function loop(ts){if(!document.body.contains(cv))return;const tab0=document.querySelector('.tab[data-tab="0"]');if(tab0&&!tab0.classList.contains('active')){_mapRAF=requestAnimationFrame(loop);return;}if(st==null)st=ts;const tt=(ts-st)/1000;if((walking&&tt<walkDur+0.3)||ts-last>90){last=ts;draw(tt);}_mapRAF=requestAnimationFrame(loop);}
   _mapRAF=requestAnimationFrame(loop);
   cv.onclick=(e)=>{const r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)/r.width*ow,my=(e.clientY-r.top)/r.height*oh;
     if(Math.hypot(mx-boss.x,my-boss.y)<18){allDone?bossCutscene():toast('Clear every milestone to face the boss!');return;}
-    let best=-1,bd=99;nodes.forEach(nd=>{const d=Math.hypot(mx-nd.x,my-nd.y);if(d<bd){bd=d;best=nd.i;}});
-    if(bd<16){const done=state.done[TASKS[best].id],reachable=done||best<=curIdx||allDone;if(!reachable){toast('Finish the earlier milestone first.');return;}goTab(2);}};
+    let best=-1,bd=99;mnodes.forEach(nd=>{const d=Math.hypot(mx-nd.x,my-nd.y);if(d<bd){bd=d;best=nd.i;}});
+    if(bd<18){const done=state.done[TASKS[best].id],reachable=done||best<=curIdx||allDone;if(!reachable){toast('Finish the earlier milestone first.');return;}goTab(2);}};
 }
 function renderDashboard(){
   ensureAvatar();
