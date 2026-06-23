@@ -165,8 +165,10 @@
   .pix{font-family:"Press Start 2P",monospace}
   .game{padding:4px 0 10px}
   .phasebar{display:flex;gap:6px;margin:4px 0 16px}
-  .phase{flex:1;border:2px solid var(--cardline);border-radius:10px;padding:9px 4px;text-align:center;
-    font-family:"Press Start 2P",monospace;font-size:7.5px;line-height:1.5;color:var(--sub);background:rgba(255,255,255,.03)}
+  .phase{flex:1;border:2px solid var(--cardline);border-radius:10px;padding:9px 4px;text-align:center;cursor:pointer;
+    font-family:"Press Start 2P",monospace;font-size:7.5px;line-height:1.5;color:var(--sub);background:rgba(255,255,255,.03);transition:.15s}
+  .phase:active{transform:scale(.96)}
+  .phase.lock{opacity:.55;cursor:not-allowed}
   .phase .pn{display:block;font-size:6.5px;color:var(--coral);margin-bottom:4px}
   .phase.on{border-color:var(--coral);color:var(--ink);background:var(--grad-soft);box-shadow:0 0 0 1px var(--coral) inset}
   .herostrip{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--cardline);
@@ -512,7 +514,7 @@ $('#cp_reward').onclick=()=>copy(rewardMsg());
   el.addEventListener('input',()=>{state.fields[f]=el.value;save();if(f==='phone')renderMarketing();});});
 
 /* ---- Step 2 tasks ---- */
-const TASKS=[
+const PHASE_FOUNDATION=[
   {id:'fbpage',icon:'📘',title:'Create FB business page',why:'Your free storefront — where new customers check you out and message you.',
    act:b=>{const bio2=`${F('name','Your Name')}\n\n${cap(F('skillset','what I do'))} for ${F('customer','people who need it')}. ${F('product','')?cap(F('product',''))+'. ':''}Message me to get started 👇`;
      b.innerHTML=`<div class="out" style="white-space:pre-wrap;font-size:14px">${bio2}</div><button class="btn btn-glass btn-sm" id="cp_pg">Copy bio</button><a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://www.facebook.com/pages/creation/">Create Page ↗</a><p class="note">Already have one? Just check this off. Otherwise create it and paste the bio above.</p>`;
@@ -562,15 +564,48 @@ Give me all the posts, ready to copy. No preamble.`;
   {id:'bookcall',icon:'📅',title:'Book a call with Nick',why:'Get personal help dialing in your offer, your numbers, and your marketing plan.',
    act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://calendly.com/lead-mining/executive">Book your call ↗</a><p class="note">Pick a time that works and come ready with your skill, your offer, and your income goal.</p>`;}},
 ];
+const PHASE_MOMENTUM=[
+  {id:'m_post',icon:'📣',title:'Post your first offer',why:'Use one of your Step-3 posts and put it out there. Done beats perfect.',
+   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" id="m_go1" style="cursor:pointer">Open my posts →</a><p class="note">Grab a post from the Marketing tab and publish it in one of your 3 groups today.</p>`;b.querySelector('#m_go1').onclick=()=>goTab(3);}},
+  {id:'m_dm',icon:'🤝',title:'Reach out to 10 people',why:'Start 10 real conversations in your groups with the outreach message.',
+   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" id="m_go2" style="cursor:pointer">Get my outreach msg →</a><p class="note">Send your warm outreach DM to 10 people who fit your customer.</p>`;b.querySelector('#m_go2').onclick=()=>goTab(3);}},
+  {id:'m_rev',icon:'⭐',title:'Collect 3 reviews',why:'Social proof turns strangers into buyers. Ask 3 people today.',
+   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" id="m_go3" style="cursor:pointer">Get review asks →</a><p class="note">Use your review request + the reviews-for-rewards offer.</p>`;b.querySelector('#m_go3').onclick=()=>goTab(3);}},
+  {id:'m_book',icon:'📅',title:'Book 5 conversations',why:'Sales happen in conversations. Get 5 on the calendar this week.',
+   act:b=>{b.innerHTML=`<p class="note">Invite interested people to a quick call or DM chat. Aim for 5 booked.</p>`;}},
+  {id:'m_follow',icon:'💬',title:'Follow up with every lead',why:'The fortune is in the follow-up. Nobody falls through the cracks.',
+   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://leadminingpros.com/crm6">Open your CRM ↗</a><p class="note">Log every lead and follow up until they say yes or no.</p>`;}},
+  {id:'m_boost',icon:'🎯',title:'Run your first boost',why:'Put a few dollars behind your best post to reach more of the right people.',
+   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://business.facebook.com/">Open Meta ↗</a><p class="note">Boost your top post to your ideal customer. Start small ($5–10/day).</p>`;}},
+  {id:'m_sale',icon:'💰',title:'Make your first sale',why:'The milestone that changes everything. Close one customer.',
+   act:b=>{b.innerHTML=`<p class="note">Make the offer clearly, answer the objection, and ask for the sale. Then celebrate. 🎉</p>`;}},
+  {id:'m_referral',icon:'🔁',title:'Ask for a referral',why:'One happy customer can bring three more. Always ask.',
+   act:b=>{b.innerHTML=`<p class="note">After you deliver, ask: "Who else do you know who needs this?" Make referring you easy.</p>`;}},
+];
+const PHASE_MASTERY=[
+  {id:'x_m1',icon:'🥉',title:'Hit your Month 1 goal',why:'Your first revenue target — proof the engine works.',
+   act:b=>{b.innerHTML=`<a class="btn btn-primary btn-sm" id="x_g1" style="cursor:pointer">See my numbers →</a><p class="note">Check your Month 1 goal on the Profile tab and hit it.</p>`;b.querySelector('#x_g1').onclick=()=>goTab(1);}},
+  {id:'x_m2',icon:'🥈',title:'Hit your Month 2 goal',why:'Momentum compounding. Beat last month.',act:b=>{b.innerHTML=`<p class="note">Push past your Month 2 target.</p>`;}},
+  {id:'x_m3',icon:'🥇',title:'Hit your Month 3 goal',why:'Three months, three wins. You\'re officially in business.',act:b=>{b.innerHTML=`<p class="note">Hit Month 3 and lock in the habit.</p>`;}},
+  {id:'x_sys',icon:'⚙️',title:'Systematize your marketing',why:'Turn what works into a repeatable weekly routine.',act:b=>{b.innerHTML=`<p class="note">Pick the 3 actions that drive sales and schedule them every week.</p>`;}},
+  {id:'x_ref',icon:'👥',title:'Build a referral engine',why:'Make referrals automatic, not random.',act:b=>{b.innerHTML=`<p class="note">Give every customer a reward + reason to refer, and ask every time.</p>`;}},
+  {id:'x_scale',icon:'🚀',title:'Raise prices / scale',why:'More demand than time means raise prices or add capacity.',act:b=>{b.innerHTML=`<p class="note">Raise your price 10–20% for new customers, or add help to serve more.</p>`;}},
+];
+const PHASES=[{name:'Foundation',boss:'The Doubt Dragon',tasks:PHASE_FOUNDATION},{name:'Momentum',boss:'The Silence Beast',tasks:PHASE_MOMENTUM},{name:'Mastery',boss:'The Plateau Titan',tasks:PHASE_MASTERY}];
+if(typeof state.phase!=='number')state.phase=0;
+let TASKS=PHASES[state.phase].tasks;
+function phaseUnlocked(p){if(p<=0)return true;return PHASES[p-1].tasks.every(t=>state.done[t.id]);}
+function setPhase(p){if(!phaseUnlocked(p)){toast('Beat '+PHASES[p-1].name+' first!');return;}state.phase=p;TASKS=PHASES[p].tasks;save();buildChecklist();renderDashboard();goTab(0);}
 const checkSVG='<svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#1A1505" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const list=$('#setupList');
-TASKS.forEach((t,i)=>{const el=document.createElement('div');el.className='task'+(state.done[t.id]?' done':'');
+function buildChecklist(){const list=$('#setupList');if(!list)return;list.innerHTML='';
+  TASKS.forEach((t,i)=>{const el=document.createElement('div');el.className='task'+(state.done[t.id]?' done':'');
   el.style.animationDelay=(i*60)+'ms';
   el.innerHTML=`<div class="medal">${t.icon}</div><div class="t-main"><div class="t-row"><div class="t-title">${t.title}</div><div class="check">${checkSVG}</div></div><div class="t-why">${t.why}</div><div class="t-act"></div></div>`;
   list.appendChild(el);t.act(el.querySelector('.t-act'));
   el.querySelector('.check').addEventListener('click',()=>{state.done[t.id]=!state.done[t.id];
     el.classList.toggle('done',state.done[t.id]);save();progress();
-    if(state.done[t.id]){ if(TASKS.every(x=>state.done[x.id])) bossCutscene(); else milestoneCutscene(t.title,i); }});});
+    if(state.done[t.id]){ if(TASKS.every(x=>state.done[x.id])) bossCutscene(); else milestoneCutscene(t.title,i); }});});}
+buildChecklist();
 
 const C=2*Math.PI*17;
 function progress(){const n=TASKS.filter(t=>state.done[t.id]).length,tot=TASKS.length,p=n/tot;
@@ -734,7 +769,7 @@ function drawBoard(ctx,ow,oh,centers,mnodes,bossPt,ts,curIdx,allDone,t,hp){
   ctx.fillStyle='#E8C26B';[[13,13],[ow-13,13],[13,oh-13],[ow-13,oh-13]].forEach(([sx,sy])=>{ctx.beginPath();ctx.arc(sx,sy,3.5,0,7);ctx.fill();});
   ctx.save();ctx.shadowColor='rgba(0,0,0,0.3)';ctx.shadowBlur=5;ctx.shadowOffsetY=2;ctx.fillStyle='#b9892f';roundRectF(ctx,ow/2-100,14,200,33,9);ctx.fill();ctx.restore();
   ctx.fillStyle='#2e7d32';roundRectF(ctx,ow/2-96,17,192,27,7);ctx.fill();
-  ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='800 13px "Plus Jakarta Sans",sans-serif';ctx.fillText('THE FOUNDATION',ow/2,31);
+  ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='800 13px "Plus Jakarta Sans",sans-serif';ctx.fillText(PHASES[state.phase].name.toUpperCase(),ow/2,31);
   ctx.lineCap='round';ctx.lineJoin='round';
   ctx.strokeStyle='rgba(0,0,0,0.18)';ctx.lineWidth=9;ctx.beginPath();centers.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();
   ctx.strokeStyle='#e7d3a0';ctx.lineWidth=6;ctx.beginPath();centers.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();
@@ -760,12 +795,13 @@ function setupWorld(curIdx,allDone){
   const mnodes=[];for(let i=0;i<n;i++){const p=centers[i];mnodes.push({x:p.x,y:p.y,i,c:PAL[i%PAL.length]});}
   const bossPt=centers[n];
   const targetIdx=allDone?n:Math.max(0,curIdx);
-  let seen=(typeof state._seenIdx==='number')?state._seenIdx:targetIdx;if(seen>targetIdx)seen=targetIdx;
+  state.seen=state.seen||{};
+  let seen=(typeof state.seen[state.phase]==='number')?state.seen[state.phase]:targetIdx;if(seen>targetIdx)seen=targetIdx;
   const walking=targetIdx>seen,wpts=[];for(let k=seen;k<=targetIdx;k++)wpts.push(centers[k]);
   const walkDur=Math.max(0.001,(wpts.length-1)*0.5);let committed=!walking;
-  if(!walking&&state._seenIdx!==targetIdx){state._seenIdx=targetIdx;save();}
+  if(!walking&&state.seen[state.phase]!==targetIdx){state.seen[state.phase]=targetIdx;save();}
   function heroPos(tm){if(!walking||tm>=walkDur){const c=centers[targetIdx];return {x:c.x,y:c.y};}const p=tm/walkDur*(wpts.length-1),i=Math.floor(p),f=p-i,a=wpts[i],b=wpts[Math.min(i+1,wpts.length-1)];return {x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f,walking:true};}
-  function draw(tm){if(walking&&!committed&&tm>=walkDur){committed=true;state._seenIdx=targetIdx;save();}drawBoard(ctx,ow,oh,centers,mnodes,bossPt,ts,curIdx,allDone,tm,heroPos(tm));}
+  function draw(tm){if(walking&&!committed&&tm>=walkDur){committed=true;state.seen[state.phase]=targetIdx;save();}drawBoard(ctx,ow,oh,centers,mnodes,bossPt,ts,curIdx,allDone,tm,heroPos(tm));}
   draw(0);
   cancelAnimationFrame(_mapRAF);let st=null,last=0;
   function loop(tsm){if(!document.body.contains(cv))return;const tab0=document.querySelector('.tab[data-tab="0"]');if(tab0&&!tab0.classList.contains('active')){_mapRAF=requestAnimationFrame(loop);return;}if(st==null)st=tsm;const tt=(tsm-st)/1000;if((walking&&tt<walkDur+0.3)||tsm-last>80){last=tsm;draw(tt);}_mapRAF=requestAnimationFrame(loop);}
@@ -777,12 +813,12 @@ function setupWorld(curIdx,allDone){
 }
 function renderDashboard(){
   ensureAvatar();
-  $('#dashTitle').textContent='The Foundation';
+  $('#dashTitle').textContent='Phase '+(state.phase+1)+' · '+PHASES[state.phase].name;
   $('#dashSub').textContent='Walk the path, clear each milestone, and defeat the boss.';
   const doneN=TASKS.filter(t=>state.done[t.id]).length, totN=TASKS.length, pct=Math.round(doneN/totN*100);
   const curIdx=TASKS.findIndex(t=>!state.done[t.id]); const allDone=curIdx===-1;
   let h=`<div class="game">`;
-  h+=`<div class="phasebar"><div class="phase on"><span class="pn">PHASE 1</span>FOUNDATION</div><div class="phase"><span class="pn">PHASE 2</span>MOMENTUM 🔒</div><div class="phase"><span class="pn">PHASE 3</span>MASTERY 🔒</div></div>`;
+  h+=`<div class="phasebar">`+PHASES.map((ph,i)=>{const un=phaseUnlocked(i),ac=i===state.phase;return `<div class="phase${ac?' on':''}${un?'':' lock'}" data-phase="${i}"><span class="pn">PHASE ${i+1}</span>${ph.name.toUpperCase()}${un?'':' 🔒'}</div>`;}).join('')+`</div>`;
   h+=`<div class="herostrip"><canvas id="avMini" width="48" height="48"></canvas><div class="hs-info"><div class="hs-name">${F('name','Your Hero')}</div><div class="hs-sub">${doneN}/${totN} milestones cleared · ${pct}%</div></div><button class="pixbtn ghost" id="btnCustom">Customize</button></div>`;
   h+=`<div class="crt"><canvas id="worldCv"></canvas></div>`;
   h+=`<p class="maptip" id="mapTip"></p>`;
@@ -790,6 +826,7 @@ function renderDashboard(){
   const body=$('#dashBody'); body.innerHTML=h;
   drawAvatarTo($('#avMini'),state.avatar,3);
   $('#btnCustom').onclick=openCreator;
+  body.querySelectorAll('[data-phase]').forEach(el=>el.onclick=()=>setPhase(+el.dataset.phase));
   setupWorld(curIdx,allDone);
   $('#mapTip').textContent= allDone?'⚔️ Tap the castle to face the boss!':'Tap the glowing tile to take action →';
   if(typeof cloudOn!=='undefined'&&cloudOn&&user){body.insertAdjacentHTML('beforeend',`<p style="text-align:center;margin-top:16px"><a class="glink" id="logoutLink" style="cursor:pointer">Log out</a></p>`);const lo=$('#logoutLink');if(lo)lo.onclick=()=>{if(window.sb)window.sb.auth.signOut().then(()=>{sessionStorage.removeItem('pulled');location.reload();});};}
@@ -826,12 +863,14 @@ function milestoneCutscene(title,idx){ ensureAvatar(); const type=MONS[idx%MONS.
   wrap.querySelector('#cutGo').onclick=()=>{wrap.remove();burst();};
 }
 function bossCutscene(){ ensureAvatar();
+  const ph=PHASES[state.phase],next=PHASES[state.phase+1];
+  const sub=next?`You slayed ${ph.boss}.<br>Phase ${state.phase+2} · ${next.name} unlocked 🔓`:`You slayed ${ph.boss}.<br>You've mastered it all. Legend. 🏆`;
   const wrap=document.createElement('div');wrap.className='cut show';
-  wrap.innerHTML=`<div class="cut-card"><div class="cut-scene"><canvas id="cutHero" width="80" height="80"></canvas><div class="cut-vs">⚔️</div><canvas id="cutMon" class="cmon" width="96" height="96"></canvas></div><div class="cut-victory">FOUNDATION<br>CLEARED!</div><div class="cut-sub">You slayed the Doubt Dragon.<br>Phase 2 · Momentum unlocked 🔓</div><button class="pixbtn big" id="cutGo">Claim your victory 🎉</button></div>`;
+  wrap.innerHTML=`<div class="cut-card"><div class="cut-scene"><canvas id="cutHero" width="80" height="80"></canvas><div class="cut-vs">⚔️</div><canvas id="cutMon" class="cmon" width="96" height="96"></canvas></div><div class="cut-victory">${ph.name.toUpperCase()}<br>CLEARED!</div><div class="cut-sub">${sub}</div><button class="pixbtn big" id="cutGo">${next?'Enter '+next.name+' →':'Claim your crown 🏆'}</button></div>`;
   document.body.appendChild(wrap);
   drawAvatarTo(wrap.querySelector('#cutHero'),state.avatar,5);
   drawMonster(wrap.querySelector('#cutMon'),'dragon',6);
-  wrap.querySelector('#cutGo').onclick=()=>{wrap.remove();burst();setTimeout(burst,400);};
+  wrap.querySelector('#cutGo').onclick=()=>{wrap.remove();burst();setTimeout(burst,400);if(next)setPhase(state.phase+1);};
 }
 
 /* ---- Auth + cloud sync (Supabase) ----
